@@ -35,3 +35,7 @@ Thumbs.db
 
 # Local Presentations & Assets
 presentation/
+
+# TypeScript incremental build cache
+*.tsbuildinfo
+
