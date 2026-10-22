@@ -44,7 +44,7 @@ export const PublicNavbar: React.FC = () => {
         <div className="max-w-7xl mx-auto px-5 sm:px-8 lg:px-10">
           <div className="flex items-center justify-between h-[72px]">
             {/* Clickable Brand Logo */}
-            <VentureLogo to="/" theme="dark" size="md" />
+            <VentureLogo to="/" theme="dark" size="lg" />
 
             {/* Desktop Navigation */}
             <nav className="hidden lg:flex items-center gap-1.5">

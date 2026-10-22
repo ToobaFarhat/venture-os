@@ -18,6 +18,11 @@ import {
   Lock,
   Layers,
   Terminal,
+  Cpu,
+  Sparkles,
+  AlertTriangle,
+  Radio,
+  BarChart3,
 } from 'lucide-react';
 import { PublicNavbar } from '../../components/layout/PublicNavbar';
 import { PublicFooter } from '../../components/layout/PublicFooter';
@@ -133,49 +138,162 @@ export const HomePage: React.FC = () => {
           {/* Subtle architectural grid pattern */}
           <div className="absolute inset-0 opacity-[0.03] pointer-events-none bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:24px_24px]" />
 
+          {/* Ambient Glow Orbs */}
+          <div className="absolute -top-32 -left-32 w-96 h-96 bg-blue-600/10 rounded-full blur-3xl pointer-events-none animate-pulse-glow" />
+          <div className="absolute top-1/2 -right-32 w-96 h-96 bg-indigo-600/10 rounded-full blur-3xl pointer-events-none animate-pulse-glow" style={{ animationDelay: '2s' }} />
+
           <div className="max-w-7xl mx-auto px-5 sm:px-8 lg:px-10 relative">
-            <div className="max-w-3xl">
-              {/* Primary Value Headline */}
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-white leading-[1.12]">
-                The closed-loop intelligence engine for modern tech ventures.
-              </h1>
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+              {/* Left Column: Value Proposition & CTAs */}
+              <div className="lg:col-span-7">
+                {/* Micro Status Chip */}
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-900 border border-slate-800 text-xs font-mono text-slate-300 mb-6">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                  <span className="text-slate-400">Autonomous Operations Engine</span>
+                  <span className="text-slate-700">/</span>
+                  <span className="text-blue-400 font-semibold">v2.4 Active</span>
+                </div>
 
-              {/* Sub-headline focused on real mechanics */}
-              <p className="mt-6 text-lg sm:text-xl text-slate-400 leading-relaxed max-w-2xl">
-                VentureOS connects CRM, sprint execution, transaction ledgers, and customer health into a unified operational schema—powered by deterministic FP&A analytics and bounded AI decision support.
-              </p>
+                {/* Primary Value Headline */}
+                <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-white leading-[1.12]">
+                  The closed-loop intelligence engine for modern tech ventures.
+                </h1>
 
-              {/* Primary Actions */}
-              <div className="mt-8 flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-                <Link
-                  to="/register"
-                  className="inline-flex items-center justify-center gap-2 px-6 py-3.5 text-base font-semibold text-white bg-blue-600 hover:bg-blue-500 rounded-lg shadow-sm transition-all active:scale-[0.98]"
-                >
-                  <span>Deploy Free Workspace</span>
-                  <ArrowRight className="w-4 h-4" />
-                </Link>
+                {/* Sub-headline */}
+                <p className="mt-6 text-lg text-slate-400 leading-relaxed max-w-2xl">
+                  VentureOS connects CRM, sprint execution, transaction ledgers, and customer health into a unified operational schema—powered by deterministic FP&A analytics and bounded AI decision support.
+                </p>
 
-                <Link
-                  to="/login"
-                  className="inline-flex items-center justify-center gap-2 px-6 py-3.5 text-base font-medium text-slate-300 hover:text-white bg-slate-900 hover:bg-slate-850 border border-slate-800 rounded-lg transition-colors"
-                >
-                  <span>Sign In with 1-Click Demo</span>
-                </Link>
+                {/* Primary Actions */}
+                <div className="mt-8 flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                  <Link
+                    to="/register"
+                    className="inline-flex items-center justify-center gap-2 px-6 py-3.5 text-base font-semibold text-white bg-blue-600 hover:bg-blue-500 rounded-lg shadow-sm transition-all active:scale-[0.98]"
+                  >
+                    <span>Deploy Free Workspace</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </Link>
+
+                  <Link
+                    to="/login"
+                    className="inline-flex items-center justify-center gap-2 px-6 py-3.5 text-base font-medium text-slate-300 hover:text-white bg-slate-900 hover:bg-slate-850 border border-slate-800 rounded-lg transition-colors"
+                  >
+                    <span>Sign In with 1-Click Demo</span>
+                  </Link>
+                </div>
+
+                {/* Key Trust Metrics */}
+                <div className="mt-12 pt-8 border-t border-slate-900 grid grid-cols-3 gap-6 text-left">
+                  <div>
+                    <div className="text-2xl font-bold text-white tracking-tight">10 Modules</div>
+                    <div className="text-xs text-slate-500 mt-1 uppercase tracking-wider font-semibold">Unified Schema</div>
+                  </div>
+                  <div>
+                    <div className="text-2xl font-bold text-emerald-400 tracking-tight">Zero Math Drift</div>
+                    <div className="text-xs text-slate-500 mt-1 uppercase tracking-wider font-semibold">Deterministic Math</div>
+                  </div>
+                  <div>
+                    <div className="text-2xl font-bold text-blue-400 tracking-tight">100% Isolated</div>
+                    <div className="text-xs text-slate-500 mt-1 uppercase tracking-wider font-semibold">Tenant Scoped</div>
+                  </div>
+                </div>
               </div>
 
-              {/* Key Trust Metrics */}
-              <div className="mt-12 pt-8 border-t border-slate-900 grid grid-cols-3 gap-6 text-left">
-                <div>
-                  <div className="text-2xl font-bold text-white tracking-tight">10 Modules</div>
-                  <div className="text-xs text-slate-500 mt-1 uppercase tracking-wider font-semibold">Unified Schema</div>
+              {/* Right Column: Live Autonomous Intelligence Console */}
+              <div className="lg:col-span-5 relative">
+                {/* Architectural Frame with subtle float motion */}
+                <div className="relative rounded-xl border border-slate-800 bg-slate-900/80 shadow-2xl p-5 backdrop-blur-xl animate-float-smooth overflow-hidden">
+                  {/* Subtle Scan Line Effect */}
+                  <div className="absolute inset-x-0 h-16 bg-gradient-to-b from-blue-500/0 via-blue-500/5 to-transparent pointer-events-none animate-scan-line" />
+
+                  {/* Header Bar */}
+                  <div className="flex items-center justify-between pb-4 border-b border-slate-800 text-xs">
+                    <div className="flex items-center gap-2">
+                      <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
+                      <span className="font-mono text-slate-300 font-semibold uppercase tracking-wider text-[11px]">
+                        Live Intelligence Stream
+                      </span>
+                    </div>
+                    <span className="font-mono text-[10px] text-blue-400 bg-blue-950/70 border border-blue-900 px-2 py-0.5 rounded">
+                      Tenant: NovaPulse
+                    </span>
+                  </div>
+
+                  {/* Operational Telemetry Cards */}
+                  <div className="space-y-3 mt-4">
+                    {/* Item 1: Revenue Telemetry */}
+                    <div className="p-3.5 rounded-lg bg-slate-950/90 border border-slate-800/80 flex items-start gap-3">
+                      <div className="w-8 h-8 rounded-lg bg-blue-950 border border-blue-900 flex items-center justify-center text-blue-400 flex-shrink-0 mt-0.5">
+                        <TrendingUp className="w-4 h-4" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="font-semibold text-white">MRR Trajectory (Linear OLS)</span>
+                          <span className="text-[10px] font-mono text-emerald-400">+18.4%</span>
+                        </div>
+                        <p className="text-[11px] text-slate-400 mt-0.5">
+                          Calculated from ledger. 14.2 months runway runway at $14,200/mo burn.
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Item 2: Risk Engine Alert */}
+                    <div className="p-3.5 rounded-lg bg-slate-950/90 border border-rose-900/40 flex items-start gap-3">
+                      <div className="w-8 h-8 rounded-lg bg-rose-950/80 border border-rose-900 flex items-center justify-center text-rose-400 flex-shrink-0 mt-0.5">
+                        <AlertTriangle className="w-4 h-4" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="font-semibold text-white">Churn Risk Detected</span>
+                          <span className="text-[10px] font-mono text-rose-400 uppercase bg-rose-950 px-1.5 py-0.5 rounded border border-rose-900">
+                            High (78%)
+                          </span>
+                        </div>
+                        <p className="text-[11px] text-slate-400 mt-0.5">
+                          Acme Corp: Negative sentiment ticket + 2 overdue sprint deliverables.
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Item 3: Autonomous Copilot Action Proposal */}
+                    <div className="p-3.5 rounded-lg bg-blue-950/30 border border-blue-800/60 flex items-start gap-3">
+                      <div className="w-8 h-8 rounded-lg bg-blue-600/20 border border-blue-500/40 flex items-center justify-center text-blue-400 flex-shrink-0 mt-0.5">
+                        <Bot className="w-4 h-4" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="font-semibold text-white">Copilot Action Proposal</span>
+                          <span className="text-[10px] font-mono text-blue-300 uppercase bg-blue-900/60 px-1.5 py-0.5 rounded border border-blue-700">
+                            Awaiting User
+                          </span>
+                        </div>
+                        <p className="text-[11px] text-slate-300 mt-0.5">
+                          "Create Billing Resolution Sprint" linked to Task #104.
+                        </p>
+                        <div className="mt-2 flex items-center gap-2">
+                          <span className="text-[10px] font-mono text-emerald-400 bg-emerald-950/80 px-2 py-0.5 rounded border border-emerald-900 flex items-center gap-1">
+                            <CheckCircle2 className="w-3 h-3" /> Ready to commit
+                          </span>
+                          <span className="text-[10px] text-slate-500 font-mono">1-click approve</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Bottom System Pulse Bar */}
+                  <div className="mt-4 pt-3 border-t border-slate-800/80 flex items-center justify-between text-[11px] text-slate-400 font-mono">
+                    <span className="flex items-center gap-1.5">
+                      <Cpu className="w-3.5 h-3.5 text-blue-400" />
+                      <span>Gemini-768 Vector Embeddings</span>
+                    </span>
+                    <span className="text-emerald-400">99.9% Grounded</span>
+                  </div>
                 </div>
-                <div>
-                  <div className="text-2xl font-bold text-emerald-400 tracking-tight">Zero Math Drift</div>
-                  <div className="text-xs text-slate-500 mt-1 uppercase tracking-wider font-semibold">Deterministic Math</div>
-                </div>
-                <div>
-                  <div className="text-2xl font-bold text-blue-400 tracking-tight">100% Isolated</div>
-                  <div className="text-xs text-slate-500 mt-1 uppercase tracking-wider font-semibold">Tenant Scoped</div>
+
+                {/* Floating micro-badge positioned bottom-left */}
+                <div className="absolute -bottom-4 -left-4 px-3 py-2 rounded-lg bg-slate-950 border border-slate-800 shadow-xl flex items-center gap-2 text-xs">
+                  <Shield className="w-4 h-4 text-emerald-400" />
+                  <span className="text-slate-300 font-medium">Tenant-isolated MongoDB Atlas</span>
                 </div>
               </div>
             </div>
@@ -183,7 +301,7 @@ export const HomePage: React.FC = () => {
             {/* ═══════════════════════════════════════════════════════════════
                 INTERACTIVE PRODUCT PREVIEW CARD (Real Architecture Simulation)
             ═══════════════════════════════════════════════════════════════ */}
-            <div className="mt-16 rounded-xl border border-slate-800 bg-slate-900/60 shadow-2xl overflow-hidden">
+            <div className="mt-20 rounded-xl border border-slate-800 bg-slate-900/60 shadow-2xl overflow-hidden">
               {/* Mock Window Top Bar */}
               <div className="px-4 py-3 bg-slate-950 border-b border-slate-800 flex items-center justify-between">
                 <div className="flex items-center gap-2">
@@ -205,7 +323,7 @@ export const HomePage: React.FC = () => {
               {/* Realistic Dashboard Sample Grid */}
               <div className="p-6 grid grid-cols-1 md:grid-cols-3 gap-5 bg-slate-900/40">
                 {/* Metric 1 */}
-                <div className="p-5 rounded-lg bg-slate-950 border border-slate-800/80">
+                <div className="p-5 rounded-lg bg-slate-950 border border-slate-800/80 hover:border-slate-700 transition-colors">
                   <div className="flex items-center justify-between text-xs text-slate-400 mb-2">
                     <span>Monthly Recurring Revenue</span>
                     <span className="text-emerald-400 font-medium">+18.4% vs last mo</span>
@@ -217,7 +335,7 @@ export const HomePage: React.FC = () => {
                 </div>
 
                 {/* Metric 2 */}
-                <div className="p-5 rounded-lg bg-slate-950 border border-slate-800/80">
+                <div className="p-5 rounded-lg bg-slate-950 border border-slate-800/80 hover:border-slate-700 transition-colors">
                   <div className="flex items-center justify-between text-xs text-slate-400 mb-2">
                     <span>Cash Runway (Linear OLS)</span>
                     <span className="text-blue-400 font-medium">Burn: $14,200/mo</span>
@@ -229,7 +347,7 @@ export const HomePage: React.FC = () => {
                 </div>
 
                 {/* Metric 3: AI Copilot Action Proposal Preview */}
-                <div className="p-5 rounded-lg bg-slate-950 border border-blue-900/60 relative">
+                <div className="p-5 rounded-lg bg-slate-950 border border-blue-900/60 relative hover:border-blue-700 transition-colors">
                   <div className="flex items-center justify-between text-xs text-slate-400 mb-2">
                     <span className="text-blue-400 font-semibold flex items-center gap-1">
                       <Bot className="w-3.5 h-3.5" /> Copilot Proposal

@@ -9,7 +9,7 @@ export const PublicFooter: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-5 gap-10 pb-12 border-b border-slate-900">
           {/* Brand Column */}
           <div className="md:col-span-2 space-y-4">
-            <VentureLogo to="/" theme="dark" size="md" />
+            <VentureLogo to="/" theme="dark" size="lg" />
             <p className="text-sm text-slate-400 max-w-sm leading-relaxed">
               Autonomous Business Intelligence and Operations SaaS. Unifying CRM, financial runway, sprint execution, and bounded AI decision support.
             </p>

@@ -86,8 +86,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ mobileOpen, setMobileOpen }) =
         )}
       >
         {/* Brand Header */}
-        <div className="h-16 px-5 flex items-center justify-between border-b border-slate-800/80">
-          <VentureLogo to="/dashboard" theme="dark" size="sm" />
+        <div className="h-16 px-4 flex items-center justify-between border-b border-slate-800/80">
+          <VentureLogo to="/dashboard" theme="dark" size="md" />
           <button
             onClick={() => setMobileOpen(false)}
             className="lg:hidden p-1.5 text-slate-400 hover:text-white rounded-md"

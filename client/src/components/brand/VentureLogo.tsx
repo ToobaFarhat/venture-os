@@ -17,31 +17,23 @@ export const VentureLogo: React.FC<VentureLogoProps> = ({
   variant = 'full',
   theme = 'auto',
   className,
-  showSubtitle = true,
 }) => {
   const iconSizes = {
-    sm: 'w-7 h-7',
-    md: 'w-8 h-8',
-    lg: 'w-10 h-10',
-    xl: 'w-12 h-12',
+    sm: 'w-8 h-8',
+    md: 'w-10 h-10',
+    lg: 'w-12 h-12',
+    xl: 'w-16 h-16',
   };
 
   const textSizes = {
-    sm: 'text-sm',
-    md: 'text-base',
-    lg: 'text-lg',
-    xl: 'text-xl',
-  };
-
-  const subtitleSizes = {
-    sm: 'text-[8.5px]',
-    md: 'text-[9.5px]',
-    lg: 'text-[11px]',
-    xl: 'text-xs',
+    sm: 'text-base font-bold',
+    md: 'text-xl font-extrabold',
+    lg: 'text-2xl font-extrabold',
+    xl: 'text-3xl font-black',
   };
 
   const content = (
-    <div className={clsx('flex items-center gap-2.5 select-none transition-transform duration-150 active:scale-[0.98]', className)}>
+    <div className={clsx('flex items-center gap-3 select-none transition-transform duration-150 active:scale-[0.98]', className)}>
       {/* Icon Emblem (The Nexus V) */}
       {(variant === 'full' || variant === 'monogram') && (
         <div className={clsx('relative flex-shrink-0 flex items-center justify-center rounded-xl overflow-hidden shadow-sm', iconSizes[size])}>
@@ -72,26 +64,15 @@ export const VentureLogo: React.FC<VentureLogoProps> = ({
 
       {/* Typography Wordmark */}
       {(variant === 'full' || variant === 'wordmark') && (
-        <div className="flex flex-col leading-none">
-          <div className={clsx('font-bold tracking-tight flex items-center', textSizes[size])}>
+        <div className="flex items-center leading-none">
+          <div className={clsx('tracking-tight flex items-center', textSizes[size])}>
             <span className={theme === 'dark' ? 'text-white' : theme === 'light' ? 'text-slate-900' : 'text-slate-900 dark:text-white'}>
               Venture
             </span>
-            <span className="text-blue-600 dark:text-blue-400 font-extrabold ml-0.5">
+            <span className="text-blue-500 dark:text-blue-400 ml-0.5">
               OS
             </span>
           </div>
-          {showSubtitle && (
-            <span
-              className={clsx(
-                'font-semibold uppercase tracking-[0.16em] mt-0.5',
-                subtitleSizes[size],
-                theme === 'dark' ? 'text-slate-400' : theme === 'light' ? 'text-slate-500' : 'text-slate-500 dark:text-slate-400'
-              )}
-            >
-              Enterprise BI
-            </span>
-          )}
         </div>
       )}
     </div>
