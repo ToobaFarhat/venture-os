@@ -32,3 +32,6 @@ tmp/
 Thumbs.db
 .vscode/
 .idea/
+
+# Local Presentations & Assets
+presentation/
