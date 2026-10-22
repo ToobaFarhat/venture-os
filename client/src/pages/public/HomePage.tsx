@@ -289,12 +289,6 @@ export const HomePage: React.FC = () => {
                     <span className="text-emerald-400">99.9% Grounded</span>
                   </div>
                 </div>
-
-                {/* Floating micro-badge positioned bottom-left */}
-                <div className="absolute -bottom-4 -left-4 px-3 py-2 rounded-lg bg-slate-950 border border-slate-800 shadow-xl flex items-center gap-2 text-xs">
-                  <Shield className="w-4 h-4 text-emerald-400" />
-                  <span className="text-slate-300 font-medium">Tenant-isolated MongoDB Atlas</span>
-                </div>
               </div>
             </div>
 
