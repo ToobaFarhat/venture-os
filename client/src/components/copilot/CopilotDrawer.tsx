@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { X, Send, Bot, Sparkles, CheckCircle2, ShieldAlert, MessageSquare, RotateCcw } from 'lucide-react';
+import { X, Send, Bot, CheckCircle2, ShieldAlert, MessageSquare, RotateCcw } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { CopilotService } from '../../services/api';
 
@@ -19,22 +19,20 @@ export interface ChatMessage {
 }
 
 // ── Lightweight markdown renderer ──────────────────────────────────────────
-// Handles: **bold**, `code`, ## heading, - bullet, numbered list, blank lines
 function renderMarkdown(text: string): React.ReactNode {
   const lines = text.split('\n');
   const elements: React.ReactNode[] = [];
   let keyCounter = 0;
 
   const inlineFormat = (line: string): React.ReactNode => {
-    // Split on **bold** and `code` spans
     const parts = line.split(/(\*\*[^*]+\*\*|`[^`]+`)/g);
     return parts.map((part, i) => {
       if (part.startsWith('**') && part.endsWith('**')) {
-        return <strong key={i}>{part.slice(2, -2)}</strong>;
+        return <strong key={i} className="font-semibold text-slate-900">{part.slice(2, -2)}</strong>;
       }
       if (part.startsWith('`') && part.endsWith('`')) {
         return (
-          <code key={i} className="px-1 py-0.5 bg-slate-100 text-indigo-700 rounded text-[10px] font-mono">
+          <code key={i} className="px-1 py-0.5 bg-slate-100 text-blue-700 rounded text-[10px] font-mono">
             {part.slice(1, -1)}
           </code>
         );
@@ -47,14 +45,12 @@ function renderMarkdown(text: string): React.ReactNode {
   while (i < lines.length) {
     const line = lines[i];
 
-    // Skip blank lines (add spacing via margin on neighbouring elements)
     if (!line.trim()) { i++; continue; }
 
-    // Headings: ## or ###
     if (/^#{1,3}\s/.test(line)) {
       const text = line.replace(/^#{1,3}\s/, '');
       elements.push(
-        <p key={keyCounter++} className="font-bold text-slate-800 mt-2 mb-0.5">
+        <p key={keyCounter++} className="font-bold text-slate-900 mt-2 mb-0.5">
           {inlineFormat(text)}
         </p>,
       );
@@ -62,43 +58,44 @@ function renderMarkdown(text: string): React.ReactNode {
       continue;
     }
 
-    // Bullet list block
-    if (/^[-*•]\s/.test(line)) {
-      const items: string[] = [];
-      while (i < lines.length && /^[-*•]\s/.test(lines[i])) {
-        items.push(lines[i].replace(/^[-*•]\s/, ''));
+    if (/^[-*]\s/.test(line)) {
+      const bulletItems: string[] = [];
+      while (i < lines.length && /^[-*]\s/.test(lines[i])) {
+        bulletItems.push(lines[i].replace(/^[-*]\s/, ''));
         i++;
       }
       elements.push(
-        <ul key={keyCounter++} className="list-disc list-inside space-y-0.5 my-1 pl-1">
-          {items.map((item, j) => (
-            <li key={j} className="text-slate-700">{inlineFormat(item)}</li>
+        <ul key={keyCounter++} className="list-disc list-inside space-y-0.5 my-1 text-slate-700">
+          {bulletItems.map((item, bi) => (
+            <li key={bi} className="leading-relaxed">
+              {inlineFormat(item)}
+            </li>
           ))}
         </ul>,
       );
       continue;
     }
 
-    // Numbered list block
     if (/^\d+\.\s/.test(line)) {
-      const items: string[] = [];
+      const numItems: string[] = [];
       while (i < lines.length && /^\d+\.\s/.test(lines[i])) {
-        items.push(lines[i].replace(/^\d+\.\s/, ''));
+        numItems.push(lines[i].replace(/^\d+\.\s/, ''));
         i++;
       }
       elements.push(
-        <ol key={keyCounter++} className="list-decimal list-inside space-y-0.5 my-1 pl-1">
-          {items.map((item, j) => (
-            <li key={j} className="text-slate-700">{inlineFormat(item)}</li>
+        <ol key={keyCounter++} className="list-decimal list-inside space-y-0.5 my-1 text-slate-700">
+          {numItems.map((item, ni) => (
+            <li key={ni} className="leading-relaxed">
+              {inlineFormat(item)}
+            </li>
           ))}
         </ol>,
       );
       continue;
     }
 
-    // Normal paragraph
     elements.push(
-      <p key={keyCounter++} className="text-slate-800 leading-relaxed">
+      <p key={keyCounter++} className="text-slate-700 leading-relaxed">
         {inlineFormat(line)}
       </p>,
     );
@@ -108,18 +105,17 @@ function renderMarkdown(text: string): React.ReactNode {
   return <div className="space-y-1">{elements}</div>;
 }
 
-// ── localStorage key scoped to current workspace ───────────────────────────
 function getStorageKey(): string {
-  const wsId = localStorage.getItem('activeWorkspaceId') ?? 'default';
+  const wsId = localStorage.getItem('ventureos_workspace_id') ?? 'default';
   return `copilot_conv_${wsId}`;
 }
 
 const WELCOME_MESSAGE: ChatMessage = {
   role: 'assistant',
   content:
-    `Hello! I'm your **VentureOS AI Business Copilot**.\n\n` +
-    `I have authorized access to your live CRM, financial records, projects, customer feedback, and marketing campaigns.\n\n` +
-    `Ask me anything about your business — I'll fetch verified live data and help you take action.`,
+    `Hello! I'm your **VentureOS Business Copilot**.\n\n` +
+    `I have authorized access to your live CRM, financial records, sprint tasks, and customer feedback.\n\n` +
+    `Ask me anything about your metrics or operations — I will fetch verified database records and propose approved actions.`,
 };
 
 export const CopilotDrawer: React.FC<CopilotDrawerProps> = ({ isOpen, onClose }) => {
@@ -131,77 +127,77 @@ export const CopilotDrawer: React.FC<CopilotDrawerProps> = ({ isOpen, onClose })
   const [historyLoaded, setHistoryLoaded] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // ── Auto-scroll on new messages ──────────────────────────────────────────
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, loading]);
 
-  // ── Restore prior conversation on open ───────────────────────────────────
   useEffect(() => {
     if (!isOpen || historyLoaded) return;
-
-    const savedId = localStorage.getItem(getStorageKey());
-    if (!savedId) {
-      setHistoryLoaded(true);
-      return;
-    }
-
-    // Attempt to load saved conversation from backend
-    CopilotService.getConversation(savedId)
-      .then((res) => {
-        if (res.data.success && res.data.data.messages?.length > 0) {
-          const loaded: ChatMessage[] = res.data.data.messages
-            .filter((m: any) => m.role === 'user' || m.role === 'assistant')
-            .map((m: any) => ({
-              role: m.role as 'user' | 'assistant',
-              content: m.content,
-              actionProposal: m.actionProposal,
-            }));
-
-          setMessages(loaded.length > 0 ? loaded : [WELCOME_MESSAGE]);
-          setConversationId(savedId);
-          setTurnCount(loaded.filter((m) => m.role === 'user').length);
+    try {
+      const saved = localStorage.getItem(getStorageKey());
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed.conversationId && Array.isArray(parsed.messages) && parsed.messages.length > 0) {
+          setConversationId(parsed.conversationId);
+          setMessages(parsed.messages);
+          setTurnCount(parsed.turnCount ?? parsed.messages.filter((m: ChatMessage) => m.role === 'user').length);
         }
-      })
-      .catch(() => {
-        // Conversation may have expired — start fresh
-        localStorage.removeItem(getStorageKey());
-      })
-      .finally(() => setHistoryLoaded(true));
+      }
+    } catch {
+      // Ignore parse failure
+    } finally {
+      setHistoryLoaded(true);
+    }
   }, [isOpen, historyLoaded]);
 
-  // ── Persist conversationId to localStorage ───────────────────────────────
   useEffect(() => {
-    if (conversationId) {
-      localStorage.setItem(getStorageKey(), conversationId);
+    if (!historyLoaded) return;
+    if (conversationId && messages.length > 1) {
+      try {
+        localStorage.setItem(
+          getStorageKey(),
+          JSON.stringify({ conversationId, messages, turnCount }),
+        );
+      } catch {
+        // Ignore storage failure
+      }
     }
-  }, [conversationId]);
+  }, [conversationId, messages, turnCount, historyLoaded]);
 
-  // ── Start a new thread ───────────────────────────────────────────────────
   const handleNewThread = useCallback(() => {
-    localStorage.removeItem(getStorageKey());
-    setMessages([WELCOME_MESSAGE]);
+    try {
+      localStorage.removeItem(getStorageKey());
+    } catch {}
     setConversationId(undefined);
+    setMessages([WELCOME_MESSAGE]);
     setTurnCount(0);
     setInput('');
   }, []);
 
-  // ── Send message ─────────────────────────────────────────────────────────
   const handleSend = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     if (!input.trim() || loading) return;
 
     const userText = input.trim();
     setInput('');
-    setMessages((prev) => [...prev, { role: 'user', content: userText }]);
+
+    const newMessages: ChatMessage[] = [
+      ...messages,
+      { role: 'user', content: userText },
+    ];
+    setMessages(newMessages);
     setLoading(true);
+    setTurnCount((prev) => prev + 1);
 
     try {
       const res = await CopilotService.chat(userText, conversationId);
+
       if (res.data.success) {
-        const data = res.data.data;
-        setConversationId(data.conversationId);
-        setTurnCount(data.turnCount ?? turnCount + 1);
+        const { data } = res.data;
+        if (data.conversationId && !conversationId) {
+          setConversationId(data.conversationId);
+        }
+
         setMessages((prev) => [
           ...prev,
           {
@@ -217,7 +213,7 @@ export const CopilotDrawer: React.FC<CopilotDrawerProps> = ({ isOpen, onClose })
         {
           role: 'assistant',
           content:
-            '⚠️ I encountered an issue. Please ensure the backend is running and your workspace is configured. If the problem persists, try starting a new conversation.',
+            '⚠️ I encountered an issue querying the backend. Please ensure your workspace is active and try again.',
         },
       ]);
     } finally {
@@ -225,7 +221,6 @@ export const CopilotDrawer: React.FC<CopilotDrawerProps> = ({ isOpen, onClose })
     }
   };
 
-  // ── Approve action proposal ──────────────────────────────────────────────
   const handleApproveAction = async (msgIndex: number, actionProposal: any) => {
     try {
       const res = await CopilotService.approveAction({
@@ -246,7 +241,7 @@ export const CopilotDrawer: React.FC<CopilotDrawerProps> = ({ isOpen, onClose })
           }
           updated.push({
             role: 'assistant',
-            content: `✅ Done! **${actionProposal.actionType.replace('create', '')}** created successfully in your workspace.`,
+            content: `✅ Done! **${actionProposal.actionType.replace('create', '')}** was created successfully in your workspace database.`,
           });
           return updated;
         });
@@ -262,26 +257,25 @@ export const CopilotDrawer: React.FC<CopilotDrawerProps> = ({ isOpen, onClose })
     <div className="fixed inset-0 z-50 overflow-hidden">
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-slate-900/30 backdrop-blur-xs transition-opacity"
+        className="fixed inset-0 bg-slate-950/40 backdrop-blur-xs transition-opacity"
         onClick={onClose}
       />
 
       <div className="fixed inset-y-0 right-0 max-w-full flex pl-10">
         <div className="w-screen max-w-md sm:max-w-lg bg-white shadow-2xl border-l border-slate-200 flex flex-col">
 
-          {/* ── Header ── */}
-          <div className="px-6 py-4 bg-gradient-to-r from-brand-900 to-indigo-950 text-white flex items-center justify-between border-b border-indigo-500/20">
+          {/* Header */}
+          <div className="px-5 py-4 bg-slate-950 text-white flex items-center justify-between border-b border-slate-800">
             <div className="flex items-center gap-2.5">
-              <div className="p-1.5 rounded-lg bg-indigo-600 shadow-ai-glow">
-                <Bot className="w-5 h-5 text-white" />
+              <div className="w-7 h-7 rounded-md bg-blue-600 flex items-center justify-center text-white">
+                <Bot className="w-4 h-4" />
               </div>
               <div>
-                <h3 className="text-sm font-bold tracking-tight">AI Business Copilot</h3>
-                <p className="text-[11px] text-indigo-200 flex items-center gap-1.5">
-                  <MessageSquare className="w-3 h-3" />
+                <h3 className="text-xs font-bold tracking-tight text-white uppercase">AI Business Copilot</h3>
+                <p className="text-[10.5px] text-slate-400 font-mono">
                   {conversationId
-                    ? `Active thread · ${turnCount} exchange${turnCount !== 1 ? 's' : ''}`
-                    : 'Authorized tool-calling assistant'}
+                    ? `Thread active • ${turnCount} exchange${turnCount !== 1 ? 's' : ''}`
+                    : '10 Read-Only Tools Authorized'}
                 </p>
               </div>
             </div>
@@ -289,33 +283,34 @@ export const CopilotDrawer: React.FC<CopilotDrawerProps> = ({ isOpen, onClose })
               {conversationId && (
                 <button
                   onClick={handleNewThread}
-                  title="Start new conversation"
-                  className="p-1.5 text-slate-300 hover:text-white rounded-lg hover:bg-white/10 mr-0.5"
+                  title="Start new thread"
+                  className="p-1.5 text-slate-400 hover:text-white rounded-md hover:bg-slate-900 transition-colors"
                 >
                   <RotateCcw className="w-4 h-4" />
                 </button>
               )}
-              <button onClick={onClose} className="p-1 text-slate-300 hover:text-white rounded-lg hover:bg-white/10">
-                <X className="w-5 h-5" />
+              <button
+                onClick={onClose}
+                className="p-1.5 text-slate-400 hover:text-white rounded-md hover:bg-slate-900 transition-colors"
+              >
+                <X className="w-4 h-4" />
               </button>
             </div>
           </div>
 
-          {/* ── Quick suggestion pills ── */}
-          {/* ── Quick suggestion pills — visible only on empty conversation ── */}
+          {/* Quick suggestion pills (only before start) */}
           {turnCount === 0 && !conversationId && (
-            <div className="px-4 py-2 bg-slate-50 border-b border-slate-200 flex items-center gap-1.5 overflow-x-auto text-[11px] no-scrollbar">
+            <div className="px-4 py-2.5 bg-slate-50 border-b border-slate-200/80 flex items-center gap-1.5 overflow-x-auto text-[11px] custom-scrollbar">
               {[
                 { label: '📊 Sales Pipeline', q: 'What does our sales pipeline look like?' },
                 { label: '💰 Cash & Runway', q: 'Show me our net revenue, MRR, and burn rate' },
                 { label: '⚠️ Churn Risks', q: 'Which customers are at highest churn risk?' },
-                { label: '📣 Marketing ROI', q: 'How are our marketing campaigns performing?' },
                 { label: '✅ Overdue Tasks', q: 'How many tasks are overdue and which are highest priority?' },
               ].map(({ label, q }) => (
                 <button
                   key={label}
                   onClick={() => setInput(q)}
-                  className="px-2.5 py-1 bg-white border border-slate-200 rounded-full text-slate-700 hover:border-indigo-300 whitespace-nowrap transition-colors"
+                  className="px-2.5 py-1 bg-white border border-slate-200 rounded-md text-slate-600 hover:text-slate-900 hover:border-slate-300 whitespace-nowrap transition-colors shadow-2xs font-medium"
                 >
                   {label}
                 </button>
@@ -323,60 +318,50 @@ export const CopilotDrawer: React.FC<CopilotDrawerProps> = ({ isOpen, onClose })
             </div>
           )}
 
-          {/* ── Conversation resumed banner ── */}
-          {conversationId && turnCount > 0 && (
-            <div className="px-4 py-1.5 bg-indigo-50 border-b border-indigo-100 text-[11px] text-indigo-700 flex items-center gap-1.5">
-              <Sparkles className="w-3 h-3" />
-              Conversation context restored — follow-up questions are understood in context.
-            </div>
-          )}
-
-          {/* ── Messages stream ── */}
-          <div className="flex-1 p-4 overflow-y-auto space-y-4">
+          {/* Messages Stream */}
+          <div className="flex-1 p-4 overflow-y-auto space-y-4 bg-slate-50/50">
             {messages.map((m, idx) => (
               <div
                 key={idx}
-                className={`flex gap-3 text-xs leading-relaxed ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                className={`flex gap-2.5 text-xs leading-relaxed ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}
               >
                 {m.role === 'assistant' && (
-                  <div className="w-7 h-7 rounded-lg bg-indigo-50 border border-indigo-200 flex items-center justify-center flex-shrink-0 text-indigo-600 mt-0.5">
-                    <Sparkles className="w-3.5 h-3.5" />
+                  <div className="w-6 h-6 rounded-md bg-slate-900 text-blue-400 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <Bot className="w-3.5 h-3.5" />
                   </div>
                 )}
                 <div
-                  className={`p-3.5 rounded-2xl max-w-[85%] ${
+                  className={`p-3.5 rounded-lg max-w-[85%] ${
                     m.role === 'user'
-                      ? 'bg-brand-900 text-white rounded-tr-xs'
-                      : 'bg-slate-50 text-slate-800 border border-slate-200/80 rounded-tl-xs shadow-xs'
+                      ? 'bg-slate-900 text-white shadow-xs'
+                      : 'bg-white text-slate-800 border border-slate-200/90 shadow-card'
                   }`}
                 >
                   {m.role === 'assistant'
                     ? renderMarkdown(m.content)
                     : <div className="whitespace-pre-wrap">{m.content}</div>}
 
-                  {/* Action proposal card */}
+                  {/* Action Proposal Card */}
                   {m.actionProposal && (
-                    <div className="mt-3 p-3 bg-white rounded-xl border border-indigo-200 shadow-sm">
-                      <div className="flex items-center gap-1.5 text-xs font-bold text-indigo-900 mb-1">
-                        <ShieldAlert className="w-4 h-4 text-indigo-600" />
-                        Proposed Action: {m.actionProposal.actionType}
+                    <div className="mt-3 p-3 bg-slate-50 rounded-md border border-slate-200">
+                      <div className="flex items-center gap-1.5 text-xs font-bold text-slate-900 mb-1">
+                        <ShieldAlert className="w-3.5 h-3.5 text-blue-600" />
+                        <span>Action Proposal: {m.actionProposal.actionType}</span>
                       </div>
-                      <div className="text-[11px] text-slate-600 font-mono bg-slate-50 p-2 rounded border border-slate-100 my-2 overflow-x-auto">
+                      <div className="text-[10.5px] text-slate-600 font-mono bg-white p-2 rounded border border-slate-200 my-2 overflow-x-auto">
                         {JSON.stringify(m.actionProposal.payload, null, 2)}
                       </div>
                       {m.actionProposal.status === 'executed' ? (
                         <div className="flex items-center gap-1 text-[11px] font-semibold text-emerald-600">
-                          <CheckCircle2 className="w-3.5 h-3.5" /> Executed in Database
+                          <CheckCircle2 className="w-3.5 h-3.5" /> Committed to MongoDB
                         </div>
                       ) : (
-                        <Button
-                          variant="ai"
-                          size="sm"
-                          className="w-full mt-1"
+                        <button
                           onClick={() => handleApproveAction(idx, m.actionProposal)}
+                          className="w-full mt-1 px-3 py-1.5 text-xs font-semibold text-white bg-blue-600 hover:bg-blue-500 rounded-md shadow-sm transition-colors"
                         >
-                          Approve &amp; Execute Action
-                        </Button>
+                          Confirm &amp; Commit Action
+                        </button>
                       )}
                     </div>
                   )}
@@ -386,29 +371,29 @@ export const CopilotDrawer: React.FC<CopilotDrawerProps> = ({ isOpen, onClose })
 
             {loading && (
               <div className="flex items-center gap-2 text-xs text-slate-500 italic p-2">
-                <Sparkles className="w-4 h-4 text-indigo-600 animate-spin" />
-                Querying authorized backend tools and analysing context…
+                <div className="w-3 h-3 rounded-full bg-blue-600 animate-ping" />
+                Querying database tools and synthesizing context…
               </div>
             )}
             <div ref={messagesEndRef} />
           </div>
 
-          {/* ── Chat input ── */}
+          {/* Input Form */}
           <form onSubmit={handleSend} className="p-3 border-t border-slate-200 bg-white flex items-center gap-2">
             <input
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder={
-                conversationId
-                  ? 'Follow up or ask something new…'
-                  : 'Ask Copilot about leads, revenue, tasks…'
-              }
-              className="flex-1 text-xs px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-100"
+              placeholder="Ask Copilot about revenue, pipeline, customer health…"
+              className="flex-1 text-xs px-3.5 py-2.5 rounded-md border border-slate-300 focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600"
             />
-            <Button variant="ai" size="sm" type="submit" disabled={!input.trim() || loading}>
+            <button
+              type="submit"
+              disabled={!input.trim() || loading}
+              className="p-2.5 rounded-md bg-blue-600 hover:bg-blue-500 text-white disabled:opacity-40 transition-colors shadow-sm"
+            >
               <Send className="w-3.5 h-3.5" />
-            </Button>
+            </button>
           </form>
 
         </div>

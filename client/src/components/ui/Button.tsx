@@ -28,12 +28,12 @@ export const Button: React.FC<ButtonProps> = ({
   };
 
   const variantStyles = {
-    primary: 'bg-brand-900 hover:bg-brand-800 text-white shadow-subtle focus:ring-brand-700',
-    secondary: 'bg-slate-100 hover:bg-slate-200 text-slate-800 focus:ring-slate-400',
-    outline: 'border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 shadow-subtle focus:ring-slate-300',
+    primary: 'bg-slate-900 hover:bg-slate-800 text-white shadow-sm focus:ring-slate-700 active:scale-[0.99]',
+    secondary: 'bg-slate-100 hover:bg-slate-200 text-slate-800 focus:ring-slate-400 active:scale-[0.99]',
+    outline: 'border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 shadow-sm focus:ring-slate-300 active:scale-[0.99]',
     ghost: 'hover:bg-slate-100 text-slate-600 hover:text-slate-900 focus:ring-slate-300',
-    danger: 'bg-rose-600 hover:bg-rose-700 text-white shadow-subtle focus:ring-rose-500',
-    ai: 'bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white shadow-ai-glow focus:ring-indigo-400',
+    danger: 'bg-rose-600 hover:bg-rose-700 text-white shadow-sm focus:ring-rose-500 active:scale-[0.99]',
+    ai: 'bg-blue-600 hover:bg-blue-500 text-white shadow-sm focus:ring-blue-400 active:scale-[0.99]',
   };
 
   return (

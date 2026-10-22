@@ -11,10 +11,10 @@ export const Card: React.FC<CardProps> = ({ children, className, aiVariant = fal
     <div
       className={twMerge(
         clsx(
-          'bg-white rounded-xl border transition-all duration-200',
+          'bg-white rounded-lg border transition-all duration-150',
           aiVariant
-            ? 'border-indigo-200 bg-gradient-to-b from-white to-indigo-50/20 shadow-ai-glow'
-            : 'border-slate-200/80 shadow-card hover:border-slate-300',
+            ? 'border-blue-200 bg-blue-50/20 shadow-sm'
+            : 'border-slate-200/90 shadow-card hover:border-slate-300',
           className
         )
       )}

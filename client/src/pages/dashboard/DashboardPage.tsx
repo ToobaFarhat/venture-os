@@ -6,14 +6,14 @@ import {
   Building2,
   FolderKanban,
   AlertTriangle,
-  ArrowUpRight,
   ShieldCheck,
-  Sparkles,
   DollarSign,
   Plus,
   RefreshCw,
   Lightbulb,
   CheckCircle2,
+  ArrowRight,
+  ShieldAlert,
 } from 'lucide-react';
 import {
   AreaChart,
@@ -49,7 +49,11 @@ export const DashboardPage: React.FC = () => {
       }
     } catch (err: any) {
       console.error('Failed to load dashboard:', err);
-      setError(err.response?.data?.error || err.response?.data?.message || 'Failed to load executive dashboard data.');
+      setError(
+        err.response?.data?.error ||
+          err.response?.data?.message ||
+          'Failed to load executive dashboard data.'
+      );
     } finally {
       setLoading(false);
     }
@@ -82,7 +86,7 @@ export const DashboardPage: React.FC = () => {
 
   if (error || !data) {
     return (
-      <div className="p-8 text-center bg-white rounded-2xl border border-slate-200">
+      <div className="p-8 text-center bg-white rounded-lg border border-slate-200">
         <AlertTriangle className="w-10 h-10 text-amber-500 mx-auto mb-3" />
         <h3 className="text-base font-bold text-slate-800 mb-1">Unable to Load Dashboard</h3>
         <p className="text-xs text-slate-500 max-w-md mx-auto mb-4">
@@ -112,8 +116,8 @@ export const DashboardPage: React.FC = () => {
           <h1 className="text-2xl font-bold tracking-tight text-slate-900">
             Executive Intelligence Dashboard
           </h1>
-          <p className="text-xs text-slate-500 mt-1">
-            Real-time multi-departmental health, cashflow, and autonomous risk detection
+          <p className="text-xs text-slate-500 mt-0.5">
+            Real-time multi-tenant health, verified ledger cashflow, and bounded risk analytics
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -135,14 +139,14 @@ export const DashboardPage: React.FC = () => {
 
       {/* Active High-Severity Risk Alert Banner if any */}
       {highRisks.length > 0 && (
-        <div className="p-4 rounded-xl bg-gradient-to-r from-rose-500/10 via-amber-500/10 to-transparent border border-rose-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className="p-4 rounded-lg bg-rose-50 border border-rose-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div className="flex items-start gap-3">
-            <div className="p-2 rounded-lg bg-rose-100 text-rose-700 mt-0.5">
-              <AlertTriangle className="w-5 h-5" />
+            <div className="p-2 rounded-md bg-rose-100 text-rose-700 mt-0.5">
+              <ShieldAlert className="w-4 h-4" />
             </div>
             <div>
               <div className="text-xs font-bold text-rose-950 flex items-center gap-2">
-                <span>{highRisks.length} High-Severity Business Risks Detected</span>
+                <span>{highRisks.length} High-Severity Operational Risk Detected</span>
                 <Badge variant="danger" size="sm">Urgent Review</Badge>
               </div>
               <p className="text-xs text-rose-700 mt-0.5 font-medium">
@@ -158,70 +162,70 @@ export const DashboardPage: React.FC = () => {
         </div>
       )}
 
-      {/* KPI Stat Cards */}
+      {/* KPI Stat Cards (Refined & Distinctive) */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
         {/* MRR */}
-        <Card className="p-5 flex items-center justify-between hover:shadow-md transition-shadow">
+        <Card className="p-5 flex items-center justify-between hover:shadow-card-hover transition-all">
           <div>
-            <div className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">
+            <div className="text-[10.5px] font-mono uppercase tracking-wider text-slate-500">
               Monthly Recurring Rev
             </div>
-            <div className="text-2xl font-black text-slate-900 mt-1">
+            <div className="text-2xl font-bold text-slate-900 mt-1">
               ${(kpis.mrr || 0).toLocaleString()}
             </div>
-            <div className="flex items-center gap-1 text-[11px] text-emerald-600 font-semibold mt-1">
+            <div className="flex items-center gap-1 text-[11px] text-emerald-600 font-medium mt-1">
               <TrendingUp className="w-3.5 h-3.5" />
-              <span>Margin: {kpis.profitMargin || 0}%</span>
+              <span>Profit Margin: {kpis.profitMargin || 0}%</span>
             </div>
           </div>
-          <div className="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
-            <DollarSign className="w-6 h-6" />
+          <div className="w-10 h-10 rounded-md bg-emerald-50 text-emerald-600 flex items-center justify-center border border-emerald-100">
+            <DollarSign className="w-5 h-5" />
           </div>
         </Card>
 
         {/* Active Customers */}
-        <Card className="p-5 flex items-center justify-between hover:shadow-md transition-shadow">
+        <Card className="p-5 flex items-center justify-between hover:shadow-card-hover transition-all">
           <div>
-            <div className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">
-              Active Customers
+            <div className="text-[10.5px] font-mono uppercase tracking-wider text-slate-500">
+              Active Accounts
             </div>
-            <div className="text-2xl font-black text-slate-900 mt-1">
+            <div className="text-2xl font-bold text-slate-900 mt-1">
               {kpis.totalCustomers || 0}
             </div>
             <div className="text-[11px] text-slate-500 mt-1">
-              {kpis.customerSentiment?.positive || 0} positive sentiment
+              {kpis.customerSentiment?.positive || 0} positive sentiment logs
             </div>
           </div>
-          <div className="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
-            <Building2 className="w-6 h-6" />
+          <div className="w-10 h-10 rounded-md bg-blue-50 text-blue-600 flex items-center justify-center border border-blue-100">
+            <Building2 className="w-5 h-5" />
           </div>
         </Card>
 
         {/* Pipeline Value */}
-        <Card className="p-5 flex items-center justify-between hover:shadow-md transition-shadow">
+        <Card className="p-5 flex items-center justify-between hover:shadow-card-hover transition-all">
           <div>
-            <div className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">
+            <div className="text-[10.5px] font-mono uppercase tracking-wider text-slate-500">
               Sales Pipeline
             </div>
-            <div className="text-2xl font-black text-slate-900 mt-1">
+            <div className="text-2xl font-bold text-slate-900 mt-1">
               {kpis.totalLeads || 0} Deals
             </div>
-            <div className="text-[11px] text-indigo-600 font-semibold mt-1">
-              {kpis.wonLeads || 0} Won ({kpis.conversionRate || 0}%)
+            <div className="text-[11px] text-blue-600 font-medium mt-1">
+              {kpis.wonLeads || 0} Won ({kpis.conversionRate || 0}% rate)
             </div>
           </div>
-          <div className="w-12 h-12 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
-            <Users className="w-6 h-6" />
+          <div className="w-10 h-10 rounded-md bg-slate-100 text-slate-700 flex items-center justify-center border border-slate-200">
+            <Users className="w-5 h-5" />
           </div>
         </Card>
 
         {/* Business Health Gauge */}
-        <Card className="p-5 flex items-center justify-between hover:shadow-md transition-shadow">
+        <Card className="p-5 flex items-center justify-between hover:shadow-card-hover transition-all">
           <div>
-            <div className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">
-              Business Health Index
+            <div className="text-[10.5px] font-mono uppercase tracking-wider text-slate-500">
+              5-Dimension Health Index
             </div>
-            <div className="text-2xl font-black text-slate-900 mt-1 flex items-baseline gap-1.5">
+            <div className="text-2xl font-bold text-slate-900 mt-1 flex items-baseline gap-1.5">
               <span>{healthScore}</span>
               <span className="text-xs font-normal text-slate-400">/ 100</span>
             </div>
@@ -234,8 +238,8 @@ export const DashboardPage: React.FC = () => {
               </Badge>
             </div>
           </div>
-          <div className="w-12 h-12 rounded-xl bg-violet-50 text-violet-600 flex items-center justify-center">
-            <ShieldCheck className="w-6 h-6" />
+          <div className="w-10 h-10 rounded-md bg-indigo-50 text-indigo-600 flex items-center justify-center border border-indigo-100">
+            <ShieldCheck className="w-5 h-5" />
           </div>
         </Card>
       </div>
@@ -247,10 +251,11 @@ export const DashboardPage: React.FC = () => {
           <div className="flex items-center justify-between mb-4">
             <div>
               <h2 className="text-sm font-bold text-slate-900">Revenue & Expense Cashflow</h2>
-              <p className="text-[11px] text-slate-500">Monthly breakdown and historical trend</p>
+              <p className="text-[11px] text-slate-500">Deterministic ledger calculations</p>
             </div>
-            <Link to="/finance" className="text-xs font-semibold text-indigo-600 hover:text-indigo-700">
-              Full Ledger &rarr;
+            <Link to="/finance" className="text-xs font-medium text-blue-600 hover:text-blue-700 flex items-center gap-1">
+              <span>Full Ledger</span>
+              <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           </div>
 
@@ -271,15 +276,15 @@ export const DashboardPage: React.FC = () => {
               >
                 <defs>
                   <linearGradient id="revGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#6366F1" stopOpacity={0.3} />
-                    <stop offset="95%" stopColor="#6366F1" stopOpacity={0} />
+                    <stop offset="5%" stopColor="#2563EB" stopOpacity={0.25} />
+                    <stop offset="95%" stopColor="#2563EB" stopOpacity={0} />
                   </linearGradient>
                   <linearGradient id="expGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#F43F5E" stopOpacity={0.2} />
-                    <stop offset="95%" stopColor="#F43F5E" stopOpacity={0} />
+                    <stop offset="5%" stopColor="#EF4444" stopOpacity={0.15} />
+                    <stop offset="95%" stopColor="#EF4444" stopOpacity={0} />
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" />
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F1F5F9" />
                 <XAxis dataKey="month" stroke="#94A3B8" fontSize={11} tickLine={false} />
                 <YAxis
                   stroke="#94A3B8"
@@ -288,32 +293,32 @@ export const DashboardPage: React.FC = () => {
                   tickFormatter={(val) => `$${val / 1000}k`}
                 />
                 <Tooltip
-                  contentStyle={{ backgroundColor: '#0F172A', borderRadius: '8px', border: 'none', color: '#fff' }}
+                  contentStyle={{ backgroundColor: '#090D16', borderRadius: '6px', border: 'none', color: '#fff' }}
                   formatter={(val: any) => [`$${Number(val).toLocaleString()}`, '']}
                 />
-                <Area type="monotone" dataKey="revenue" stroke="#6366F1" strokeWidth={2.5} fillOpacity={1} fill="url(#revGrad)" name="Revenue" />
-                <Area type="monotone" dataKey="expense" stroke="#F43F5E" strokeWidth={2} fillOpacity={1} fill="url(#expGrad)" name="Expense" />
+                <Area type="monotone" dataKey="revenue" stroke="#2563EB" strokeWidth={2} fillOpacity={1} fill="url(#revGrad)" name="Revenue" />
+                <Area type="monotone" dataKey="expense" stroke="#EF4444" strokeWidth={1.5} fillOpacity={1} fill="url(#expGrad)" name="Expense" />
               </AreaChart>
             </ResponsiveContainer>
           </div>
 
           <div className="mt-4 pt-4 border-t border-slate-100 grid grid-cols-3 gap-4 text-center">
             <div>
-              <div className="text-[10px] uppercase font-semibold text-slate-400">Net Profit</div>
+              <div className="text-[10px] uppercase font-mono text-slate-400">Net Profit</div>
               <div className="text-sm font-bold text-slate-900 mt-0.5">
                 ${(kpis.netProfit || 0).toLocaleString()}
               </div>
             </div>
             <div>
-              <div className="text-[10px] uppercase font-semibold text-slate-400">Cash Runway</div>
+              <div className="text-[10px] uppercase font-mono text-slate-400">Cash Runway</div>
               <div className="text-sm font-bold text-slate-900 mt-0.5">
                 {kpis.cashRunwayMonths || 14} Months
               </div>
             </div>
             <div>
-              <div className="text-[10px] uppercase font-semibold text-slate-400">Tasks In Flight</div>
+              <div className="text-[10px] uppercase font-mono text-slate-400">Tasks Completed</div>
               <div className="text-sm font-bold text-slate-900 mt-0.5">
-                {kpis.completedTasks || 0} / {kpis.totalTasks || 0} done
+                {kpis.completedTasks || 0} / {kpis.totalTasks || 0}
               </div>
             </div>
           </div>
@@ -323,8 +328,9 @@ export const DashboardPage: React.FC = () => {
         <Card className="p-6">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-sm font-bold text-slate-900">5-Dimension Health</h2>
-            <Link to="/health" className="text-xs font-semibold text-indigo-600 hover:text-indigo-700">
-              Deep Dive &rarr;
+            <Link to="/health" className="text-xs font-medium text-blue-600 hover:text-blue-700 flex items-center gap-1">
+              <span>Deep Dive</span>
+              <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           </div>
 
@@ -340,13 +346,13 @@ export const DashboardPage: React.FC = () => {
               return (
                 <div key={i}>
                   <div className="flex justify-between items-center text-xs mb-1">
-                    <span className="font-semibold text-slate-700">{d.label}</span>
-                    <span className="font-bold text-slate-900">{score}%</span>
+                    <span className="font-medium text-slate-700">{d.label}</span>
+                    <span className="font-semibold text-slate-900 font-mono">{score}%</span>
                   </div>
-                  <div className="w-full h-2 rounded-full bg-slate-100 overflow-hidden">
+                  <div className="w-full h-1.5 rounded-full bg-slate-100 overflow-hidden">
                     <div
-                      className={`h-full rounded-full transition-all duration-500 ${
-                        score >= 80 ? 'bg-emerald-500' : score >= 60 ? 'bg-indigo-500' : 'bg-rose-500'
+                      className={`h-full rounded-full transition-all duration-300 ${
+                        score >= 80 ? 'bg-emerald-500' : score >= 60 ? 'bg-blue-600' : 'bg-rose-500'
                       }`}
                       style={{ width: `${score}%` }}
                     />
@@ -357,12 +363,11 @@ export const DashboardPage: React.FC = () => {
           </div>
 
           {businessHealth.aiExplanation?.overview && (
-            <div className="mt-5 p-3 rounded-xl bg-indigo-50/50 border border-indigo-100">
-              <div className="flex items-center gap-1.5 text-xs font-bold text-indigo-950 mb-1">
-                <Sparkles className="w-3.5 h-3.5 text-indigo-600" />
-                <span>AI Health Synthesis</span>
+            <div className="mt-5 p-3 rounded-md bg-slate-50 border border-slate-200">
+              <div className="text-[11px] font-bold text-slate-900 mb-1">
+                Strategic Health Synthesis
               </div>
-              <p className="text-[11px] text-slate-600 leading-relaxed">
+              <p className="text-[10.5px] text-slate-600 leading-relaxed">
                 {businessHealth.aiExplanation.overview}
               </p>
             </div>
@@ -379,8 +384,9 @@ export const DashboardPage: React.FC = () => {
               <h2 className="text-sm font-bold text-slate-900">Lead Pipeline Distribution</h2>
               <p className="text-[11px] text-slate-500">Active deals across pipeline stages</p>
             </div>
-            <Link to="/crm" className="text-xs font-semibold text-indigo-600 hover:text-indigo-700">
-              Kanban Board &rarr;
+            <Link to="/crm" className="text-xs font-medium text-blue-600 hover:text-blue-700 flex items-center gap-1">
+              <span>Kanban</span>
+              <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           </div>
 
@@ -399,13 +405,13 @@ export const DashboardPage: React.FC = () => {
                       ]
                 }
               >
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" />
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F1F5F9" />
                 <XAxis dataKey="stage" stroke="#94A3B8" fontSize={11} tickLine={false} />
                 <YAxis stroke="#94A3B8" fontSize={11} tickLine={false} />
                 <Tooltip
-                  contentStyle={{ backgroundColor: '#0F172A', borderRadius: '8px', border: 'none', color: '#fff' }}
+                  contentStyle={{ backgroundColor: '#090D16', borderRadius: '6px', border: 'none', color: '#fff' }}
                 />
-                <Bar dataKey="count" fill="#6366F1" radius={[4, 4, 0, 0]} name="Deals" />
+                <Bar dataKey="count" fill="#2563EB" radius={[4, 4, 0, 0]} name="Deals" />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -414,29 +420,22 @@ export const DashboardPage: React.FC = () => {
         {/* AI Strategic Insights */}
         <Card className="p-6">
           <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-2">
-              <div className="w-7 h-7 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center">
-                <Sparkles className="w-4 h-4" />
-              </div>
-              <h2 className="text-sm font-bold text-slate-900">Executive Strategic Advisory</h2>
-            </div>
-            <Badge variant="ai" size="sm">Live AI Synthesis</Badge>
+            <h2 className="text-sm font-bold text-slate-900">Executive Strategic Advisory</h2>
+            <Badge variant="indigo" size="sm">Analytical Advisory</Badge>
           </div>
 
           <div className="space-y-3">
             {aiInsights.map((insight: any, idx: number) => (
               <div
                 key={idx}
-                className="p-3 rounded-xl border border-slate-100 bg-slate-50/50 hover:bg-slate-50 transition-colors"
+                className="p-3 rounded-md border border-slate-200/80 bg-slate-50/60 hover:bg-slate-50 transition-colors"
               >
                 <div className="flex items-center justify-between mb-1">
                   <span className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
                     {insight.type === 'warning' ? (
                       <AlertTriangle className="w-3.5 h-3.5 text-amber-500" />
-                    ) : insight.type === 'opportunity' ? (
-                      <Lightbulb className="w-3.5 h-3.5 text-indigo-500" />
                     ) : (
-                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
+                      <CheckCircle2 className="w-3.5 h-3.5 text-blue-500" />
                     )}
                     {insight.title}
                   </span>
@@ -454,7 +453,7 @@ export const DashboardPage: React.FC = () => {
                   </Badge>
                 </div>
                 <p className="text-[11px] text-slate-600 mb-1.5">{insight.impact}</p>
-                <div className="text-[11px] font-medium text-indigo-600 bg-indigo-50/60 rounded-md px-2 py-1">
+                <div className="text-[10.5px] font-medium text-blue-700 bg-blue-50 rounded px-2 py-1">
                   &rarr; {insight.recommendation}
                 </div>
               </div>

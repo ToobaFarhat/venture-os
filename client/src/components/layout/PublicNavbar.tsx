@@ -1,13 +1,13 @@
-﻿import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
-import { Sparkles, Menu, X, Zap, ArrowRight } from "lucide-react";
+import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import { Menu, X, ArrowRight } from 'lucide-react';
+import { VentureLogo } from '../brand/VentureLogo';
 
 const NAV_LINKS = [
-  { label: "Product", href: "#product" },
-  { label: "AI Capabilities", href: "#ai", icon: true },
-  { label: "Solutions", href: "#solutions" },
-  { label: "Pricing", href: "#pricing" },
-  { label: "FAQ", href: "#faq" },
+  { label: 'Capabilities', href: '#capabilities' },
+  { label: 'Intelligence Loop', href: '#intelligence' },
+  { label: 'Solutions', href: '#solutions' },
+  { label: 'FAQ', href: '#faq' },
 ];
 
 export const PublicNavbar: React.FC = () => {
@@ -16,79 +16,66 @@ export const PublicNavbar: React.FC = () => {
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
   const handleNavClick = (href: string) => {
     setMobileOpen(false);
     const el = document.querySelector(href);
-    if (el) el.scrollIntoView({ behavior: "smooth" });
+    if (el) el.scrollIntoView({ behavior: 'smooth' });
   };
 
   return (
     <>
       <header
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-200 ${
           scrolled
-            ? "bg-slate-950/90 backdrop-blur-xl shadow-lg shadow-black/20 border-b border-white/5"
-            : "bg-transparent"
+            ? 'bg-slate-950/95 backdrop-blur-md border-b border-slate-800 shadow-sm'
+            : 'bg-transparent'
         }`}
       >
         <div className="max-w-7xl mx-auto px-5 sm:px-8 lg:px-10">
-          <div className="flex items-center justify-between h-[68px]">
+          <div className="flex items-center justify-between h-[72px]">
+            {/* Clickable Brand Logo */}
+            <VentureLogo to="/" theme="dark" size="md" />
 
-            {/* Logo */}
-            <Link to="/" className="flex items-center gap-3 group flex-shrink-0">
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center text-white font-black text-base shadow-lg shadow-indigo-500/40 group-hover:shadow-indigo-500/70 group-hover:scale-105 transition-all duration-200">
-                V
-              </div>
-              <div className="leading-none">
-                <span className="text-[17px] font-extrabold tracking-tight text-white">
-                  Venture<span className="text-indigo-400">OS</span>
-                </span>
-                <span className="block text-[9px] uppercase tracking-[0.15em] text-slate-500 font-semibold mt-0.5">
-                  Intelligent BI
-                </span>
-              </div>
-            </Link>
-
-            {/* Desktop Nav */}
-            <nav className="hidden lg:flex items-center gap-1">
+            {/* Desktop Navigation */}
+            <nav className="hidden lg:flex items-center gap-1.5">
               {NAV_LINKS.map((link) => (
                 <button
                   key={link.label}
                   onClick={() => handleNavClick(link.href)}
-                  className="relative flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium text-slate-400 hover:text-white hover:bg-white/8 transition-all duration-150 group"
+                  className="px-3.5 py-1.5 rounded-md text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-900 transition-colors"
                 >
-                  {link.icon && <Sparkles className="w-3.5 h-3.5 text-indigo-400" />}
                   {link.label}
-                  <span className="absolute bottom-1 left-4 right-4 h-px bg-indigo-400 scale-x-0 group-hover:scale-x-100 transition-transform duration-200 origin-left rounded-full" />
                 </button>
               ))}
             </nav>
 
-            {/* Desktop Actions */}
+            {/* Desktop CTAs */}
             <div className="hidden lg:flex items-center gap-3">
-              <div className="w-px h-5 bg-white/10" />
-              <Link to="/login">
-                <button className="px-4 py-2 text-sm font-medium text-slate-400 hover:text-white rounded-lg hover:bg-white/8 transition-all duration-150">
-                  Sign In
-                </button>
+              <Link
+                to="/login"
+                className="px-4 py-2 text-sm font-medium text-slate-300 hover:text-white rounded-md hover:bg-slate-900 transition-colors"
+              >
+                Sign In
               </Link>
-              <Link to="/register">
-                <button className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 rounded-xl shadow-lg shadow-indigo-500/30 hover:shadow-indigo-500/50 hover:-translate-y-px transition-all duration-150">
-                  <Zap className="w-3.5 h-3.5" />
-                  Get Started Free
-                </button>
+              <Link
+                to="/register"
+                className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-500 rounded-md shadow-sm transition-all active:scale-[0.98]"
+              >
+                <span>Deploy Workspace</span>
+                <ArrowRight className="w-4 h-4" />
               </Link>
             </div>
 
-            {/* Mobile hamburger */}
+            {/* Mobile Hamburger Toggle */}
             <div className="flex lg:hidden items-center">
               <button
                 onClick={() => setMobileOpen((o) => !o)}
-                className="w-9 h-9 rounded-lg flex items-center justify-center text-slate-400 hover:text-white hover:bg-white/10 transition-all"
+                aria-label="Toggle Navigation Menu"
+                className="p-2 rounded-md text-slate-400 hover:text-white hover:bg-slate-900"
               >
                 {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
               </button>
@@ -100,26 +87,33 @@ export const PublicNavbar: React.FC = () => {
       {/* Mobile Drawer */}
       {mobileOpen && (
         <div className="fixed inset-0 z-40 lg:hidden">
-          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setMobileOpen(false)} />
-          <div className="absolute top-[68px] left-0 right-0 bg-slate-950 border-b border-white/10 shadow-2xl animate-slide-down">
-            <div className="px-5 py-6 space-y-1">
-              {NAV_LINKS.map((link) => (
-                <button key={link.label} onClick={() => handleNavClick(link.href)}
-                  className="flex items-center gap-2 w-full px-4 py-3 rounded-xl text-sm font-medium text-slate-300 hover:bg-white/8 hover:text-white transition-all text-left">
-                  {link.icon && <Sparkles className="w-3.5 h-3.5 text-indigo-400" />}
-                  {link.label}
-                </button>
-              ))}
-              <div className="pt-4 border-t border-white/10 space-y-2">
-                <Link to="/login" onClick={() => setMobileOpen(false)}>
-                  <button className="w-full px-4 py-2.5 text-sm font-medium text-slate-300 border border-white/15 rounded-xl hover:border-indigo-500/50 transition-all">Sign In</button>
-                </Link>
-                <Link to="/register" onClick={() => setMobileOpen(false)}>
-                  <button className="w-full flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold text-white bg-gradient-to-r from-indigo-600 to-violet-600 rounded-xl shadow-lg">
-                    <ArrowRight className="w-4 h-4" />Get Started Free
-                  </button>
-                </Link>
-              </div>
+          <div className="absolute inset-0 bg-slate-950/80 backdrop-blur-sm" onClick={() => setMobileOpen(false)} />
+          <div className="absolute top-[72px] left-0 right-0 bg-slate-950 border-b border-slate-800 shadow-xl p-5 space-y-3">
+            {NAV_LINKS.map((link) => (
+              <button
+                key={link.label}
+                onClick={() => handleNavClick(link.href)}
+                className="block w-full text-left px-3 py-2 text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-900 rounded-md"
+              >
+                {link.label}
+              </button>
+            ))}
+            <div className="pt-3 border-t border-slate-800 flex flex-col gap-2">
+              <Link
+                to="/login"
+                onClick={() => setMobileOpen(false)}
+                className="w-full text-center px-4 py-2.5 text-sm font-medium text-slate-300 border border-slate-800 rounded-md hover:bg-slate-900"
+              >
+                Sign In
+              </Link>
+              <Link
+                to="/register"
+                onClick={() => setMobileOpen(false)}
+                className="w-full flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-500"
+              >
+                <span>Deploy Workspace</span>
+                <ArrowRight className="w-4 h-4" />
+              </Link>
             </div>
           </div>
         </div>

@@ -8,17 +8,23 @@ export default {
     extend: {
       colors: {
         brand: {
-          50: '#F0F4F8',
-          100: '#D9E2EC',
-          200: '#BCCCDC',
-          300: '#9FB3C8',
-          400: '#829AB1',
-          500: '#627D98',
-          600: '#486581',
-          700: '#334E68',
-          800: '#1C2541',
-          900: '#0B132B',
-          950: '#050A18',
+          50: '#F8FAFC',
+          100: '#F1F5F9',
+          200: '#E2E8F0',
+          300: '#CBD5E1',
+          400: '#94A3B8',
+          500: '#64748B',
+          600: '#475569',
+          700: '#334155',
+          800: '#1E293B',
+          900: '#0F172A',
+          950: '#090D16', // Deep Midnight Obsidian
+        },
+        accent: {
+          blue: '#2563EB',
+          cobalt: '#1D4ED8',
+          teal: '#0D9488',
+          indigo: '#4F46E5',
         },
         ai: {
           50: '#EEF2FF',
@@ -31,24 +37,26 @@ export default {
           700: '#4338CA',
           800: '#3730A3',
           900: '#312E81',
-          violet: '#8B5CF6',
+          violet: '#7C3AED',
         },
         surface: {
           light: '#F8FAFC',
           DEFAULT: '#FFFFFF',
-          dark: '#0F172A',
+          dark: '#0B1120',
           card: '#FFFFFF',
           border: '#E2E8F0',
+          subtle: '#F1F5F9',
         }
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
       },
       boxShadow: {
-        'subtle': '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
-        'card': '0 1px 3px 0 rgba(15, 23, 42, 0.08), 0 1px 2px -1px rgba(15, 23, 42, 0.08)',
-        'ai-glow': '0 0 15px -3px rgba(99, 102, 241, 0.25), 0 4px 6px -4px rgba(99, 102, 241, 0.2)',
-        'glow-lg': '0 0 40px -8px rgba(99, 102, 241, 0.45)',
+        'subtle': '0 1px 2px 0 rgba(15, 23, 42, 0.04)',
+        'card': '0 1px 3px 0 rgba(15, 23, 42, 0.06), 0 1px 2px -1px rgba(15, 23, 42, 0.04)',
+        'card-hover': '0 10px 25px -5px rgba(15, 23, 42, 0.08), 0 8px 10px -6px rgba(15, 23, 42, 0.04)',
+        'elevated': '0 20px 25px -5px rgba(15, 23, 42, 0.1), 0 8px 10px -6px rgba(15, 23, 42, 0.06)',
+        'ai-card': '0 4px 20px -2px rgba(79, 70, 229, 0.12)',
       },
       borderRadius: {
         'saas': '0.5rem',
