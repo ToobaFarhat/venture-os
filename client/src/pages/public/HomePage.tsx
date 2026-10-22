@@ -77,6 +77,27 @@ export const HomePage: React.FC = () => {
     },
   ];
 
+  const solutions = [
+    {
+      role: 'Founders & CEOs',
+      headline: 'Unified Single Pane of Glass',
+      desc: 'Correlate real-time ARR trajectory with customer sentiment and product roadmap health without chasing updates across 5 disconnected tools.',
+      benefits: ['Automated linear cash runway models', 'Cross-module churn risk alerts', 'Executive briefing synthesis'],
+    },
+    {
+      role: 'Product & Engineering',
+      headline: 'Decision-to-Execution Velocity',
+      desc: 'Turn meeting transcripts and customer feedback into prioritized project tasks and track sprint progress alongside revenue impact.',
+      benefits: ['1-click meeting transcript task converter', 'Sprint bottleneck forecasting', 'Workspace document RAG citations'],
+    },
+    {
+      role: 'Sales & Growth Teams',
+      headline: 'High-Conversion Deal Intelligence',
+      desc: 'Score inbound leads with 0-100 propensity models, generate personalized pitch emails, and auto-convert closed deals to active client accounts.',
+      benefits: ['Predictive lead scoring algorithms', 'AI objection handling assistant', 'Seamless CRM-to-customer transition'],
+    },
+  ];
+
   const faqs = [
     {
       q: 'How does VentureOS eliminate LLM financial arithmetic hallucinations?',
@@ -114,14 +135,6 @@ export const HomePage: React.FC = () => {
 
           <div className="max-w-7xl mx-auto px-5 sm:px-8 lg:px-10 relative">
             <div className="max-w-3xl">
-              {/* Architecture Badge */}
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-900 border border-slate-800 text-xs font-medium text-slate-300 mb-6">
-                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                <span>Production-Ready SaaS Operating System</span>
-                <span className="text-slate-600">•</span>
-                <span className="text-blue-400">Live on Render & Atlas</span>
-              </div>
-
               {/* Primary Value Headline */}
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-white leading-[1.12]">
                 The closed-loop intelligence engine for modern tech ventures.
@@ -436,6 +449,65 @@ export const HomePage: React.FC = () => {
                     </div>
                     <Link to="/login" className="text-xs text-blue-400 hover:text-blue-300 font-medium flex items-center gap-1">
                       <span>Explore</span>
+                      <ChevronRight className="w-3.5 h-3.5" />
+                    </Link>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ═══════════════════════════════════════════════════════════════
+            SOLUTIONS SECTION (id="solutions")
+        ═══════════════════════════════════════════════════════════════ */}
+        <section id="solutions" className="py-24 border-b border-slate-800/80 bg-slate-950">
+          <div className="max-w-7xl mx-auto px-5 sm:px-8 lg:px-10">
+            <div className="text-center max-w-2xl mx-auto mb-16">
+              <div className="text-xs font-semibold uppercase tracking-widest text-blue-400 mb-2">
+                Tailored Workflows
+              </div>
+              <h2 className="text-3xl sm:text-4xl font-bold text-white tracking-tight">
+                Designed for high-output venture teams
+              </h2>
+              <p className="text-slate-400 mt-3 text-base">
+                Whether you lead company strategy, product delivery, or pipeline growth, VentureOS provides purpose-built workflows with zero fluff.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {solutions.map((sol) => (
+                <div
+                  key={sol.role}
+                  className="p-8 rounded-xl bg-slate-900/40 border border-slate-800 hover:border-slate-700 transition-all flex flex-col justify-between"
+                >
+                  <div>
+                    <div className="text-xs font-mono uppercase tracking-wider text-blue-400 mb-3">
+                      {sol.role}
+                    </div>
+                    <h3 className="text-xl font-bold text-white tracking-tight mb-2">
+                      {sol.headline}
+                    </h3>
+                    <p className="text-sm text-slate-400 leading-relaxed mb-6">
+                      {sol.desc}
+                    </p>
+
+                    <div className="space-y-2.5 pt-4 border-t border-slate-800/80">
+                      {sol.benefits.map((b) => (
+                        <div key={b} className="flex items-center gap-2 text-xs text-slate-300">
+                          <CheckCircle2 className="w-4 h-4 text-emerald-400 flex-shrink-0" />
+                          <span>{b}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="mt-8 pt-4">
+                    <Link
+                      to="/register"
+                      className="inline-flex items-center gap-1.5 text-xs font-semibold text-blue-400 hover:text-blue-300"
+                    >
+                      <span>Explore {sol.role} Flow</span>
                       <ChevronRight className="w-3.5 h-3.5" />
                     </Link>
                   </div>

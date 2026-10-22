@@ -22,8 +22,14 @@ export const PublicNavbar: React.FC = () => {
 
   const handleNavClick = (href: string) => {
     setMobileOpen(false);
+    if (window.location.pathname !== '/') {
+      window.location.href = `/${href}`;
+      return;
+    }
     const el = document.querySelector(href);
-    if (el) el.scrollIntoView({ behavior: 'smooth' });
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth' });
+    }
   };
 
   return (
