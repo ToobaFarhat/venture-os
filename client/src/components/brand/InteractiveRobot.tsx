@@ -61,14 +61,6 @@ export const InteractiveRobot: React.FC = () => {
       {/* Ambient Radial Platform Glow */}
       <div className="absolute w-72 h-72 rounded-full bg-blue-600/15 blur-3xl pointer-events-none animate-pulse-glow" />
 
-      {/* Cybernetic Status Badge */}
-      <div className="absolute top-4 left-1/2 -translate-x-1/2 z-20 inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-900/90 border border-slate-800 text-[11px] font-mono shadow-lg backdrop-blur-md">
-        <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-        <span className="text-slate-300">NEXUS CO-PILOT AI</span>
-        <span className="text-slate-600">/</span>
-        <span className="text-blue-400">TRACKING</span>
-      </div>
-
       {/* 3D Rotating Robot Head Container */}
       <div
         className="relative transition-transform duration-100 ease-out flex flex-col items-center"
@@ -201,13 +193,6 @@ export const InteractiveRobot: React.FC = () => {
           {/* Subtle metallic bevel highlight */}
           <div className="absolute top-0 inset-x-8 h-[1px] bg-gradient-to-r from-transparent via-blue-400 to-transparent" />
         </div>
-      </div>
-
-      {/* Floating Interactive Speech Bubble */}
-      <div className="mt-4 px-4 py-2 rounded-xl bg-slate-900/90 border border-slate-800 shadow-xl backdrop-blur-md flex items-center gap-2.5">
-        <span className="text-xs text-slate-300 font-medium">
-          👋 <span className="text-blue-400 font-semibold">Move your cursor!</span> I monitor your venture operations in real time.
-        </span>
       </div>
     </div>
   );

@@ -147,14 +147,6 @@ export const HomePage: React.FC = () => {
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
               {/* Left Column: Value Proposition & CTAs */}
               <div className="lg:col-span-7">
-                {/* Micro Status Chip */}
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-900 border border-slate-800 text-xs font-mono text-slate-300 mb-6">
-                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                  <span className="text-slate-400">Autonomous Operations Engine</span>
-                  <span className="text-slate-700">/</span>
-                  <span className="text-blue-400 font-semibold">v2.4 Active</span>
-                </div>
-
                 {/* Primary Value Headline */}
                 <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-white leading-[1.12]">
                   The closed-loop intelligence engine for modern tech ventures.
