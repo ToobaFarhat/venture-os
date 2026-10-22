@@ -26,6 +26,7 @@ import {
 } from 'lucide-react';
 import { PublicNavbar } from '../../components/layout/PublicNavbar';
 import { PublicFooter } from '../../components/layout/PublicFooter';
+import { InteractiveRobot } from '../../components/brand/InteractiveRobot';
 
 export const HomePage: React.FC = () => {
   const [activeFaq, setActiveFaq] = useState<number | null>(null);
@@ -199,96 +200,9 @@ export const HomePage: React.FC = () => {
                 </div>
               </div>
 
-              {/* Right Column: Live Autonomous Intelligence Console */}
-              <div className="lg:col-span-5 relative">
-                {/* Architectural Frame with subtle float motion */}
-                <div className="relative rounded-xl border border-slate-800 bg-slate-900/80 shadow-2xl p-5 backdrop-blur-xl animate-float-smooth overflow-hidden">
-                  {/* Subtle Scan Line Effect */}
-                  <div className="absolute inset-x-0 h-16 bg-gradient-to-b from-blue-500/0 via-blue-500/5 to-transparent pointer-events-none animate-scan-line" />
-
-                  {/* Header Bar */}
-                  <div className="flex items-center justify-between pb-4 border-b border-slate-800 text-xs">
-                    <div className="flex items-center gap-2">
-                      <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
-                      <span className="font-mono text-slate-300 font-semibold uppercase tracking-wider text-[11px]">
-                        Live Intelligence Stream
-                      </span>
-                    </div>
-                    <span className="font-mono text-[10px] text-blue-400 bg-blue-950/70 border border-blue-900 px-2 py-0.5 rounded">
-                      Tenant: NovaPulse
-                    </span>
-                  </div>
-
-                  {/* Operational Telemetry Cards */}
-                  <div className="space-y-3 mt-4">
-                    {/* Item 1: Revenue Telemetry */}
-                    <div className="p-3.5 rounded-lg bg-slate-950/90 border border-slate-800/80 flex items-start gap-3">
-                      <div className="w-8 h-8 rounded-lg bg-blue-950 border border-blue-900 flex items-center justify-center text-blue-400 flex-shrink-0 mt-0.5">
-                        <TrendingUp className="w-4 h-4" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center justify-between text-xs">
-                          <span className="font-semibold text-white">MRR Trajectory (Linear OLS)</span>
-                          <span className="text-[10px] font-mono text-emerald-400">+18.4%</span>
-                        </div>
-                        <p className="text-[11px] text-slate-400 mt-0.5">
-                          Calculated from ledger. 14.2 months runway runway at $14,200/mo burn.
-                        </p>
-                      </div>
-                    </div>
-
-                    {/* Item 2: Risk Engine Alert */}
-                    <div className="p-3.5 rounded-lg bg-slate-950/90 border border-rose-900/40 flex items-start gap-3">
-                      <div className="w-8 h-8 rounded-lg bg-rose-950/80 border border-rose-900 flex items-center justify-center text-rose-400 flex-shrink-0 mt-0.5">
-                        <AlertTriangle className="w-4 h-4" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center justify-between text-xs">
-                          <span className="font-semibold text-white">Churn Risk Detected</span>
-                          <span className="text-[10px] font-mono text-rose-400 uppercase bg-rose-950 px-1.5 py-0.5 rounded border border-rose-900">
-                            High (78%)
-                          </span>
-                        </div>
-                        <p className="text-[11px] text-slate-400 mt-0.5">
-                          Acme Corp: Negative sentiment ticket + 2 overdue sprint deliverables.
-                        </p>
-                      </div>
-                    </div>
-
-                    {/* Item 3: Autonomous Copilot Action Proposal */}
-                    <div className="p-3.5 rounded-lg bg-blue-950/30 border border-blue-800/60 flex items-start gap-3">
-                      <div className="w-8 h-8 rounded-lg bg-blue-600/20 border border-blue-500/40 flex items-center justify-center text-blue-400 flex-shrink-0 mt-0.5">
-                        <Bot className="w-4 h-4" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center justify-between text-xs">
-                          <span className="font-semibold text-white">Copilot Action Proposal</span>
-                          <span className="text-[10px] font-mono text-blue-300 uppercase bg-blue-900/60 px-1.5 py-0.5 rounded border border-blue-700">
-                            Awaiting User
-                          </span>
-                        </div>
-                        <p className="text-[11px] text-slate-300 mt-0.5">
-                          "Create Billing Resolution Sprint" linked to Task #104.
-                        </p>
-                        <div className="mt-2 flex items-center gap-2">
-                          <span className="text-[10px] font-mono text-emerald-400 bg-emerald-950/80 px-2 py-0.5 rounded border border-emerald-900 flex items-center gap-1">
-                            <CheckCircle2 className="w-3 h-3" /> Ready to commit
-                          </span>
-                          <span className="text-[10px] text-slate-500 font-mono">1-click approve</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Bottom System Pulse Bar */}
-                  <div className="mt-4 pt-3 border-t border-slate-800/80 flex items-center justify-between text-[11px] text-slate-400 font-mono">
-                    <span className="flex items-center gap-1.5">
-                      <Cpu className="w-3.5 h-3.5 text-blue-400" />
-                      <span>Gemini-768 Vector Embeddings</span>
-                    </span>
-                    <span className="text-emerald-400">99.9% Grounded</span>
-                  </div>
-                </div>
+              {/* Right Column: Interactive 3D Cursor-Tracking Copilot Robot */}
+              <div className="lg:col-span-5 relative flex items-center justify-center">
+                <InteractiveRobot />
               </div>
             </div>
 
