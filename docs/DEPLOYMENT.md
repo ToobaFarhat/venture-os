@@ -11,13 +11,13 @@ This guide provides step-by-step instructions for deploying **VentureOS** to clo
        │
        ▼
 [ Render Cloud Network ]
-  ├── Static Site (Frontend SPA)    ──► https://ventureos.onrender.com (Vite dist bundle)
-  │                                           │ (Proxies /api requests)
+  ├── Static Site (Frontend SPA)    ──► https://ventureos-app.onrender.com (Vite dist bundle)
+  │                                           │ (Communicates via VITE_API_URL)
   │                                           ▼
-  └── Web Service (Backend API)     ──► https://ventureos-api.onrender.com (Node.js/Express)
+  └── Web Service (Backend API)     ──► https://venture-os-nh3b.onrender.com (Node.js/Express)
                                               │
                                               ▼
-[ MongoDB Atlas (Cloud Database) ]  ──► mongodb+srv://... (Replica Set with TLS 1.3)
+[ MongoDB Atlas (Cloud Database) ]  ──► cluster0.1h8d3vm.mongodb.net/ventureos
 ```
 
 ---
