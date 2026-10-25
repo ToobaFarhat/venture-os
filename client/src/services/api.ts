@@ -99,6 +99,7 @@ export const DocumentService = {
   list: () => api.get('/documents'),
   upload: (formData: FormData) => api.post('/documents/upload', formData, { headers: { 'Content-Type': 'multipart/form-data' } }),
   getById: (id: string) => api.get(`/documents/${id}`),
+  reprocess: (id: string) => api.post(`/documents/${id}/reprocess`),
   askRAG: (question: string) => api.post('/documents/rag/ask', { question }),
   delete: (id: string) => api.delete(`/documents/${id}`),
 };

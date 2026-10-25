@@ -179,13 +179,16 @@ export interface DocumentItem {
   originalName: string;
   fileType: 'pdf' | 'docx' | 'txt' | 'csv';
   fileSize: number;
+  extractedText?: string;
   summary?: string;
   keyInfo?: string[];
   requirements?: string[];
   risks?: string[];
   deadlines?: Array<{ description: string; date?: string }>;
   chunksCount: number;
+  chunks?: any[];
   status: 'uploaded' | 'processing' | 'ready' | 'failed';
+  errorMessage?: string;
   uploadedBy?: {
     name: string;
     email: string;

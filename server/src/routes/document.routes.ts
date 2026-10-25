@@ -35,6 +35,7 @@ router.use(authenticate, resolveWorkspace);
 router.get('/', DocumentController.list);
 router.post('/upload', requireRole('Employee'), upload.single('file'), DocumentController.upload);
 router.get('/:id', DocumentController.getById);
+router.post('/:id/reprocess', requireRole('Employee'), DocumentController.reprocess);
 router.post('/rag/ask', DocumentController.askRAG);
 router.delete('/:id', requireRole('Admin'), DocumentController.delete);
 

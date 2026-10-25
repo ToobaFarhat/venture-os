@@ -52,13 +52,19 @@ export class DocumentController {
         status: 'processing',
       });
 
-      // Process document text extraction and vector chunking
-      VectorRAGService.processDocument(
-        doc._id.toString(),
-        file.path,
-        ext as any,
-        req.workspace!.workspaceId
-      ).catch((err) => console.error('[DocumentController] Background processing error:', err));
+      // Synchronously process document so client receives fully indexed document immediately
+      try {
+        await VectorRAGService.processDocument(
+          doc._id.toString(),
+          file.path,
+          ext as any,
+          req.workspace!.workspaceId
+        );
+      } catch (err) {
+        console.error('[DocumentController] Processing error during upload:', err);
+      }
+
+      const refreshedDoc = await DocumentModel.findById(doc._id).populate('uploadedBy', 'name email avatarUrl');
 
       await AuditService.record({
         workspaceId: req.workspace!.workspaceId,
@@ -71,8 +77,8 @@ export class DocumentController {
 
       res.status(201).json({
         success: true,
-        message: 'Document uploaded successfully. Background processing started.',
-        data: doc,
+        message: 'Document uploaded and indexed successfully.',
+        data: refreshedDoc || doc,
       });
     } catch (error: any) {
       res.status(500).json({ success: false, error: error.message || 'Failed to upload document' });
@@ -91,9 +97,57 @@ export class DocumentController {
         return;
       }
 
-      res.status(200).json({ success: true, data: doc });
+      const chunks = await DocumentChunk.find({ documentId: doc._id })
+        .sort({ chunkIndex: 1 })
+        .select('chunkIndex content tokenCount metadata');
+
+      res.status(200).json({
+        success: true,
+        data: {
+          ...doc.toObject(),
+          chunks,
+        },
+      });
     } catch (error: any) {
       res.status(500).json({ success: false, error: error.message || 'Failed to retrieve document' });
+    }
+  }
+
+  public static async reprocess(req: AuthenticatedRequest, res: Response): Promise<void> {
+    try {
+      const doc = await DocumentModel.findOne({
+        _id: toObjectId(req.params.id),
+        workspaceId: toObjectId(req.workspace!.workspaceId),
+      });
+
+      if (!doc) {
+        res.status(404).json({ success: false, error: 'Document not found' });
+        return;
+      }
+
+      await VectorRAGService.processDocument(
+        doc._id.toString(),
+        doc.storagePath,
+        doc.fileType,
+        req.workspace!.workspaceId
+      );
+
+      const chunks = await DocumentChunk.find({ documentId: doc._id })
+        .sort({ chunkIndex: 1 })
+        .select('chunkIndex content tokenCount metadata');
+
+      const updated = await DocumentModel.findById(doc._id).populate('uploadedBy', 'name email avatarUrl');
+
+      res.status(200).json({
+        success: true,
+        message: 'Document re-processed successfully',
+        data: {
+          ...(updated ? updated.toObject() : doc.toObject()),
+          chunks,
+        },
+      });
+    } catch (error: any) {
+      res.status(500).json({ success: false, error: error.message || 'Failed to reprocess document' });
     }
   }
 

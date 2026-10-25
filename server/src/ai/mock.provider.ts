@@ -276,11 +276,11 @@ export class MockAIProvider implements IAIProvider {
   }
 
   public async generateEmbedding(text: string): Promise<number[]> {
-    // Generate deterministic 64-dimensional normalized vector from text hash
-    const vector: number[] = new Array(64).fill(0);
+    // Generate deterministic 768-dimensional normalized vector from text hash
+    const vector: number[] = new Array(768).fill(0);
     for (let i = 0; i < text.length; i++) {
       const code = text.charCodeAt(i);
-      vector[i % 64] += code * ((i % 5) + 1);
+      vector[i % 768] += code * ((i % 5) + 1);
     }
     // Normalize to unit vector
     const norm = Math.sqrt(vector.reduce((sum, val) => sum + val * val, 0)) || 1;

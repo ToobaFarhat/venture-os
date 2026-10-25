@@ -177,10 +177,22 @@ export class GeminiAIProvider implements IAIProvider {
     if (!this.ai || !config.ai.geminiApiKey) {
       throw new Error('Gemini API key is not configured');
     }
-    const response: any = await this.ai.models.embedContent({
-      model: 'gemini-embedding-001',
-      contents: text,
-    });
-    return response.embedding?.values ?? response.embeddings?.[0]?.values ?? [];
+    try {
+      const response: any = await this.ai.models.embedContent({
+        model: 'text-embedding-004',
+        contents: text,
+      });
+      const vals = response.embedding?.values ?? response.embeddings?.[0]?.values ?? [];
+      if (vals.length > 0) return vals;
+    } catch {
+      // Fallback model
+      const response: any = await this.ai.models.embedContent({
+        model: 'gemini-embedding-001',
+        contents: text,
+      });
+      const vals = response.embedding?.values ?? response.embeddings?.[0]?.values ?? [];
+      if (vals.length > 0) return vals;
+    }
+    return [];
   }
 }
