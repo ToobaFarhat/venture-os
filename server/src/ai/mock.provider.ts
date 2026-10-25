@@ -68,16 +68,23 @@ export class MockAIProvider implements IAIProvider {
       content = JSON.stringify(parsedJson, null, 2);
     } else if (module === 'feedback_analysis') {
       const lower = lastUserMessage.toLowerCase();
-      const isNegative = lower.includes('slow') || lower.includes('expensive') || lower.includes('bad') || lower.includes('issue') || lower.includes('bug');
+      const hasRating1or2 = lower.includes('1 out of 5') || lower.includes('2 out of 5') || lower.includes('rating: 1') || lower.includes('rating: 2');
+      const negativeWords = [
+        'slow', 'expensive', 'bad', 'issue', 'bug', 'fail', 'failure', 'block', 'delay', 'broken',
+        'error', 'terrible', 'horrible', 'crash', 'frustrat', 'poor', 'complaint', 'cancel',
+        'unacceptable', 'down', 'outage', 'disappoint', 'problem', 'hate', 'worst', 'critical'
+      ];
+      const isNegative = hasRating1or2 || negativeWords.some((w) => lower.includes(w));
       const isPricing = lower.includes('price') || lower.includes('cost') || lower.includes('expensive') || lower.includes('fee');
+      const isSupport = lower.includes('support') || lower.includes('ticket') || lower.includes('response') || lower.includes('service') || lower.includes('help');
 
       parsedJson = {
         sentiment: isNegative ? 'negative' : 'positive',
-        sentimentScore: isNegative ? -0.7 : 0.85,
-        topic: isPricing ? 'pricing' : isNegative ? 'support' : 'product',
+        sentimentScore: isNegative ? -0.85 : 0.85,
+        topic: isPricing ? 'pricing' : isSupport ? 'support' : isNegative ? 'support' : 'product',
         urgency: isNegative ? 'high' : 'low',
         suggestedAction: isNegative
-          ? 'Reach out within 1 business day with personalized support remediation.'
+          ? 'Reach out within 1 business day with dedicated support remediation and executive review.'
           : 'Thank the customer and request a brief public case study testimonial.',
       };
       content = JSON.stringify(parsedJson, null, 2);

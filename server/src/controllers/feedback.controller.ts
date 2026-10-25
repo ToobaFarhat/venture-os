@@ -57,9 +57,11 @@ export class FeedbackController {
       // 1. Run AI Sentiment & Topic Analysis
       const prompt = `Analyze this customer feedback:
 Customer: "${customerName}"
+Rating: ${rating ? `${rating} out of 5 stars` : 'Not provided'}
 Feedback text: "${content}"
 
 Extract sentiment, topic category, and urgency level.
+Note: If rating is 1 or 2 stars, or if customer reports failure/service disruption, sentiment must be "negative" with urgency "high" or "critical".
 Return a strict JSON object:
 - "sentiment": "positive" | "neutral" | "negative"
 - "sentimentScore": number between -1.0 (extremely negative) and 1.0 (extremely positive)
@@ -99,6 +101,25 @@ Return a strict JSON object:
           urgency: 'low',
           suggestedAction: 'Review feedback during weekly sync.',
         };
+      }
+
+      // Deterministic Guardrail: 1 or 2 star review or severe failure complaints must never be classified positive!
+      const contentLower = content.toLowerCase();
+      const hasSevereNegativeWords = [
+        'fail', 'failure', 'blocked', 'broken', 'critical', 'crash', 'outage', 'terrible',
+        'unacceptable', 'slow', 'expensive', 'bad', 'issue', 'bug', 'down', 'disappoint'
+      ].some((w) => contentLower.includes(w));
+
+      if ((rating && Number(rating) <= 2) || hasSevereNegativeWords) {
+        if (parsed.sentiment === 'positive') {
+          parsed.sentiment = 'negative';
+          parsed.sentimentScore = -0.85;
+          parsed.urgency = 'high';
+          if (!parsed.topic || parsed.topic === 'product') {
+            parsed.topic = 'support';
+          }
+          parsed.suggestedAction = 'Reach out within 1 business day with dedicated support remediation and executive review.';
+        }
       }
 
       const feedback = await Feedback.create({
