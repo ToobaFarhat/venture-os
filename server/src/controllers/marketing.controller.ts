@@ -100,6 +100,7 @@ export class MarketingController {
       }
 
       const workspace = await Workspace.findById(req.workspace!.workspaceId);
+      const companyName = workspace?.name || 'Northstar Business Systems';
       const prompt = `You are the VentureOS AI Marketing Studio.
 Company: ${workspace?.name} (${workspace?.industry})
 Company Value Proposition: ${workspace?.description || 'Unified B2B operations'}
@@ -141,12 +142,20 @@ Return a strict JSON object with:
         personas: ['RevOps Leader', 'Founding CEO'],
         contentPillars: ['Efficiency', 'Intelligence', 'ROI'],
         ideas: ['Operational assessment benchmark tool'],
-        socialPosts: [{ platform: campaign.platform, postContent: 'Scale operations with VentureOS.', hashtags: ['#SaaS', '#Growth'] }],
-        emailSequences: [{ step: 1, subject: 'Transform your operations', body: 'Discover how VentureOS connects your business.' }],
+        socialPosts: [{ platform: campaign.platform, postContent: `Scale operations with ${companyName}.`, hashtags: ['#SaaS', '#Growth'] }],
+        emailSequences: [{ step: 1, subject: 'Transform your operations', body: `Discover how ${companyName} connects your business.\n\nBest,\nThe ${companyName} Team` }],
         adCopy: [{ headline: 'AI Business Intelligence', description: 'One unified platform.', callToAction: 'Try Free' }],
         landingPageCopy: { heroHeadline: 'Intelligent Operations', subhead: 'Connect CRM, PM, and Finance.', valueProps: ['Unified Data', 'AI Insights'], cta: 'Get Started' },
         ctas: ['Start Trial', 'Book Demo'],
       };
+
+      // Personalize company name in generated copy
+      if (generated.emailSequences) {
+        generated.emailSequences = generated.emailSequences.map((seq: any) => ({
+          ...seq,
+          body: (seq.body || '').replace(/The VentureOS Team/g, `The ${companyName} Team`),
+        }));
+      }
 
       campaign.aiContent = generated;
       await campaign.save();
