@@ -42,17 +42,21 @@ export const FinancePage: React.FC = () => {
   const [forecast, setForecast] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
+const initialFinanceForm = {
+  type: 'revenue',
+  category: 'Subscription / SaaS',
+  amount: '',
+  currency: 'USD',
+  date: new Date().toISOString().split('T')[0],
+  description: '',
+  recurring: true,
+};
+
   // Modals
   const [createModalOpen, setCreateModalOpen] = useState(false);
-  const [formData, setFormData] = useState({
-    type: 'revenue',
-    category: 'Subscription / SaaS',
-    amount: 5000,
-    currency: 'USD',
-    date: new Date().toISOString().split('T')[0],
-    description: '',
-    recurring: true,
-  });
+  const [createLoading, setCreateLoading] = useState(false);
+  const [createError, setCreateError] = useState<string | null>(null);
+  const [formData, setFormData] = useState<any>(initialFinanceForm);
 
   const fetchData = async () => {
     setLoading(true);
@@ -83,25 +87,41 @@ export const FinancePage: React.FC = () => {
     fetchData();
   }, [activeWorkspace]);
 
+  const handleOpenCreateModal = () => {
+    setFormData(initialFinanceForm);
+    setCreateError(null);
+    setCreateModalOpen(true);
+  };
+
   const handleCreateRecord = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!formData.amount || Number(formData.amount) <= 0) {
+      setCreateError('Valid positive amount is required.');
+      return;
+    }
+
+    setCreateLoading(true);
+    setCreateError(null);
+
     try {
-      const res = await FinanceService.create(formData);
+      const res = await FinanceService.create({
+        ...formData,
+        amount: Number(formData.amount),
+        description: formData.description.trim() || formData.category,
+      });
+
       if (res.data.success) {
         setCreateModalOpen(false);
-        setFormData({
-          type: 'revenue',
-          category: 'Subscription / SaaS',
-          amount: 5000,
-          currency: 'USD',
-          date: new Date().toISOString().split('T')[0],
-          description: '',
-          recurring: true,
-        });
-        fetchData();
+        setFormData(initialFinanceForm);
+        await fetchData();
+      } else {
+        setCreateError(res.data.error || 'Failed to record transaction');
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error('Failed to save financial record:', err);
+      setCreateError(err.response?.data?.error || err.message || 'Failed to record transaction');
+    } finally {
+      setCreateLoading(false);
     }
   };
 
@@ -159,7 +179,7 @@ export const FinancePage: React.FC = () => {
           <Button variant="outline" size="sm" onClick={fetchData} icon={<RefreshCw className="w-3.5 h-3.5" />}>
             Refresh
           </Button>
-          <Button size="sm" onClick={() => setCreateModalOpen(true)} icon={<Plus className="w-3.5 h-3.5" />}>
+          <Button size="sm" onClick={handleOpenCreateModal} icon={<Plus className="w-3.5 h-3.5" />}>
             Add Financial Record
           </Button>
         </div>
@@ -331,15 +351,28 @@ export const FinancePage: React.FC = () => {
         size="md"
       >
         <form onSubmit={handleCreateRecord} className="space-y-4">
+          {createError && (
+            <div className="p-3 text-xs bg-rose-50 border border-rose-200 text-rose-700 rounded-lg">
+              {createError}
+            </div>
+          )}
+
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1.5">
+              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1.5">
                 Type
               </label>
               <select
                 value={formData.type}
-                onChange={(e) => setFormData({ ...formData, type: e.target.value })}
-                className="w-full rounded-lg border border-slate-300 text-xs p-2.5 focus:border-indigo-500 focus:outline-none"
+                onChange={(e) => {
+                  const newType = e.target.value;
+                  setFormData({
+                    ...formData,
+                    type: newType,
+                    category: newType === 'revenue' ? 'Subscription' : 'Infrastructure',
+                  });
+                }}
+                className="w-full rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 text-xs p-2.5 focus:border-indigo-500 focus:outline-none"
               >
                 <option value="revenue">Revenue (+)</option>
                 <option value="expense">Expense (-)</option>
@@ -348,36 +381,43 @@ export const FinancePage: React.FC = () => {
             <Input
               label="Amount ($)"
               type="number"
+              placeholder="e.g. 18500"
               value={formData.amount}
-              onChange={(e) => setFormData({ ...formData, amount: Number(e.target.value) })}
+              onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
               required
             />
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1.5">
+              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-1.5">
                 Category
               </label>
               <select
                 value={formData.category}
                 onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                className="w-full rounded-lg border border-slate-300 text-xs p-2.5 focus:border-indigo-500 focus:outline-none"
+                className="w-full rounded-lg border border-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 text-xs p-2.5 focus:border-indigo-500 focus:outline-none"
               >
                 {formData.type === 'revenue' ? (
                   <>
+                    <option value="Subscription">Subscription</option>
                     <option value="Subscription / SaaS">Subscription / SaaS</option>
+                    <option value="Services">Services</option>
                     <option value="Professional Services">Professional Services</option>
                     <option value="License & Integration">License & Integration</option>
                     <option value="Other Revenue">Other Revenue</option>
                   </>
                 ) : (
                   <>
-                    <option value="Salaries & Payroll">Salaries & Payroll</option>
+                    <option value="Infrastructure">Infrastructure</option>
                     <option value="Cloud Infrastructure & Hosting">Cloud Infrastructure & Hosting</option>
+                    <option value="Marketing">Marketing</option>
                     <option value="Marketing & Advertising">Marketing & Advertising</option>
+                    <option value="Payroll">Payroll</option>
+                    <option value="Salaries & Payroll">Salaries & Payroll</option>
                     <option value="Software Subscriptions">Software Subscriptions</option>
                     <option value="Office & Operations">Office & Operations</option>
+                    <option value="Other Expense">Other Expense</option>
                   </>
                 )}
               </select>
@@ -394,7 +434,7 @@ export const FinancePage: React.FC = () => {
 
           <Input
             label="Description"
-            placeholder="Q3 AWS hosting, Client retainer, etc."
+            placeholder="e.g. August Enterprise SaaS Subscriptions"
             value={formData.description}
             onChange={(e) => setFormData({ ...formData, description: e.target.value })}
           />
@@ -407,16 +447,18 @@ export const FinancePage: React.FC = () => {
               onChange={(e) => setFormData({ ...formData, recurring: e.target.checked })}
               className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
             />
-            <label htmlFor="recurringCheck" className="text-xs text-slate-700 font-medium cursor-pointer">
+            <label htmlFor="recurringCheck" className="text-xs text-slate-700 dark:text-slate-300 font-medium cursor-pointer">
               Recurring monthly item (affects MRR and burn rate calculation)
             </label>
           </div>
 
-          <div className="pt-3 flex justify-end gap-2 border-t border-slate-100">
+          <div className="pt-3 flex justify-end gap-2 border-t border-slate-100 dark:border-slate-800">
             <Button variant="outline" type="button" onClick={() => setCreateModalOpen(false)}>
               Cancel
             </Button>
-            <Button type="submit">Record Transaction</Button>
+            <Button type="submit" loading={createLoading}>
+              Record Transaction
+            </Button>
           </div>
         </form>
       </Modal>

@@ -163,11 +163,11 @@
 - **Preconditions:** On /competitors
 - **Steps Executed:** Add competitor profile, generate comparison, review strengths, weaknesses, our advantage
 - **Expected Result:** Feature executes cleanly without unhandled exceptions; UI displays expected structured response; database reflects new records.
-- **Actual Result:** `[Leave blank until tested]`
-- **Status:** `NOT TESTED`
-- **Screenshot / Evidence Reference:** `[e.g., docs/evidence/test-14.png]`
-- **Error Message (if any):** `[None]`
-- **Notes & Observations:** `[Record any UX observations, timing, or discrepancies]`
+- **Actual Result:** Added competitor profile 'LegacyCRM Suite' ($120/seat/mo). AI SWOT engine generated 4-quadrant competitive matrix highlighting rival strengths/weaknesses, market threats, and Northstar's operational advantage.
+- **Status:** `PASSED`
+- **Screenshot / Evidence Reference:** Verified in live session
+- **Error Message (if any):** None
+- **Notes & Observations:** Clear inputs with gray placeholders, automated SWOT analysis modal, and positioning comparison verified.
 
 ---
 ### [TEST-15] Finance & Forecasting (Deterministic Analytics)
