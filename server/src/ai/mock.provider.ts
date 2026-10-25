@@ -27,7 +27,33 @@ export class MockAIProvider implements IAIProvider {
       };
       content = JSON.stringify(parsedJson, null, 2);
     } else if (module === 'sales_assistant') {
-      content = `**Lead Summary:** Key stakeholder interested in streamlining operations and business intelligence. High likelihood of conversion given matching requirements.\n\n**Next Best Action:** Schedule a 30-minute tailored platform walkthrough focusing on CRM automation and executive analytics.\n\n**Personalized Outreach:**\n"Hi there,\n\nI noticed your focus on scaling operations and eliminating disconnected tools. VentureOS specifically addresses pipeline visibility and automated risk detection for teams in your sector.\n\nWould you have 15 minutes this Thursday for a focused preview?\n\nBest regards,"`;
+      const prospectMatch = messages[1]?.content?.match(/Lead:\s*([^\n]+)/);
+      const leadName = prospectMatch ? prospectMatch[1] : 'Prospect';
+      const companyMatch = messages[1]?.content?.match(/at\s+([^\n]+)/);
+      const companyName = companyMatch ? companyMatch[1] : 'your company';
+
+      parsedJson = {
+        summary: `Strong commercial fit for enterprise operations. High conversion propensity given ${companyName}'s growth profile and unified workflow requirements.`,
+        nextBestAction: 'Schedule an executive discovery walkthrough and provide tailored ROI modeling.',
+        pitch: `Subject: Accelerating ${companyName}'s operational velocity with VentureOS\n\nHi ${leadName},\n\nI noticed your focus on scaling operations and eliminating disconnected business tools across your teams.\n\nVentureOS connects your CRM pipeline, project execution, and financial forecasting into a single operational cockpit—preventing revenue leaks and reducing manual coordination by over 40%.\n\nAre you open to a brief 15-minute briefing this Thursday to see how peers in your space streamlined their stack?\n\nBest regards,\nVentureOS Growth Team`,
+        emailDraft: `Subject: Accelerating ${companyName}'s operational velocity with VentureOS\n\nHi ${leadName},\n\nI noticed your focus on scaling operations and eliminating disconnected business tools across your teams.\n\nVentureOS connects your CRM pipeline, project execution, and financial forecasting into a single operational cockpit—preventing revenue leaks and reducing manual coordination by over 40%.\n\nAre you open to a brief 15-minute briefing this Thursday to see how peers in your space streamlined their stack?\n\nBest regards,\nVentureOS Growth Team`,
+        discoveryQuestions: [
+          `What is ${companyName}'s biggest bottleneck in tracking deal conversions across sales and delivery?`,
+          'How does your leadership team currently identify at-risk accounts before churn occurs?',
+          'What operational KPIs are you prioritizing over the next two fiscal quarters?'
+        ],
+        objectionHandling: [
+          {
+            objection: 'We already have multiple specialized SaaS tools deployed.',
+            rebuttal: 'VentureOS operates alongside or replaces fragmented point tools, syncing unified intelligence without disrupting current daily workflows.'
+          },
+          {
+            objection: 'Our team does not have bandwidth for a complicated software rollout.',
+            rebuttal: 'Our guided workspace onboarding and automated data ingestion achieve full team productivity in under 48 hours.'
+          }
+        ]
+      };
+      content = JSON.stringify(parsedJson, null, 2);
     } else if (module === 'customer_churn') {
       parsedJson = {
         churnRisk: 'medium',

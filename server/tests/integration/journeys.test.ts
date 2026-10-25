@@ -66,6 +66,20 @@ describe('VentureOS Core End-to-End User Journeys Tests', () => {
     expect(scoreRes.body.data.score).toBeGreaterThan(0);
     expect(scoreRes.body.data.risk).toBeDefined();
 
+    // 2b. AI Sales Assistant (Personalized Pitch, Discovery, Objection Handling)
+    const assistantRes = await request(app)
+      .post(`/api/leads/${leadId}/sales-assistant`)
+      .set('Authorization', `Bearer ${token}`)
+      .set('x-workspace-id', workspaceId);
+
+    expect(assistantRes.status).toBe(200);
+    expect(assistantRes.body.success).toBe(true);
+    expect(assistantRes.body.data.pitch).toBeDefined();
+    expect(assistantRes.body.data.pitch.length).toBeGreaterThan(20);
+    expect(assistantRes.body.data.discoveryQuestions.length).toBeGreaterThan(0);
+    expect(assistantRes.body.data.objectionHandling.length).toBeGreaterThan(0);
+    expect(assistantRes.body.data.summary).toBeDefined();
+
     // 3. Convert to Customer (Status -> Won)
     const convertRes = await request(app)
       .post(`/api/leads/${leadId}/convert-to-customer`)

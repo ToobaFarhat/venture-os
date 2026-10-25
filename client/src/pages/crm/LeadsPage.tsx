@@ -16,6 +16,8 @@ import {
   Bot,
   TrendingUp,
   X,
+  Copy,
+  Check,
 } from 'lucide-react';
 import { LeadService } from '../../services/api';
 import { Lead } from '../../types';
@@ -41,6 +43,7 @@ export const LeadsPage: React.FC = () => {
   const [salesAssistantData, setSalesAssistantData] = useState<any>(null);
   const [salesAssistantLoading, setSalesAssistantLoading] = useState(false);
   const [scoringLeadId, setScoringLeadId] = useState<string | null>(null);
+  const [copiedPitch, setCopiedPitch] = useState(false);
 
   // New Lead form state
   const [formData, setFormData] = useState({
@@ -114,6 +117,7 @@ export const LeadsPage: React.FC = () => {
     setSelectedLead(lead);
     setSalesAssistantLoading(true);
     setSalesAssistantData(null);
+    setCopiedPitch(false);
     try {
       const res = await LeadService.salesAssistant(lead._id);
       if (res.data.success) {
@@ -124,6 +128,13 @@ export const LeadsPage: React.FC = () => {
     } finally {
       setSalesAssistantLoading(false);
     }
+  };
+
+  const handleCopyPitch = (text?: string) => {
+    if (!text) return;
+    navigator.clipboard.writeText(text);
+    setCopiedPitch(true);
+    setTimeout(() => setCopiedPitch(false), 2000);
   };
 
   const handleConvertToCustomer = async (leadId: string) => {
@@ -509,27 +520,64 @@ export const LeadsPage: React.FC = () => {
               <p className="text-xs text-slate-400">Analyzing company profile, deal value, and objection handling</p>
             </div>
           ) : salesAssistantData ? (
-            <div className="space-y-5 max-h-[500px] overflow-y-auto pr-1">
+            <div className="space-y-5 max-h-[520px] overflow-y-auto pr-1">
+              {/* Executive Summary & Next Best Action */}
+              {(salesAssistantData.summary || salesAssistantData.nextBestAction) && (
+                <div className="p-4 rounded-xl bg-gradient-to-r from-indigo-50/80 to-violet-50/80 border border-indigo-100 space-y-2">
+                  {salesAssistantData.summary && (
+                    <div className="text-xs text-slate-700 leading-relaxed">
+                      <span className="font-bold text-indigo-950">Strategic Fit: </span>
+                      {salesAssistantData.summary}
+                    </div>
+                  )}
+                  {salesAssistantData.nextBestAction && (
+                    <div className="text-xs text-indigo-900 font-semibold flex items-center gap-1.5 pt-1 border-t border-indigo-100/60">
+                      <Sparkles className="w-3.5 h-3.5 text-indigo-600 shrink-0" />
+                      <span>Next Best Action: {salesAssistantData.nextBestAction}</span>
+                    </div>
+                  )}
+                </div>
+              )}
+
               {/* Pitch Email */}
               <div>
-                <div className="text-xs font-bold text-slate-900 uppercase tracking-wider mb-1.5">
-                  Personalized Cold/Warm Pitch Email
+                <div className="flex items-center justify-between mb-1.5">
+                  <div className="text-xs font-bold text-slate-900 uppercase tracking-wider">
+                    Personalized Outreach Email Pitch
+                  </div>
+                  <button
+                    onClick={() => handleCopyPitch(salesAssistantData.emailDraft || salesAssistantData.pitch || salesAssistantData.assistantReport)}
+                    className="flex items-center gap-1 px-2.5 py-1 text-[11px] font-semibold rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-700 transition-colors"
+                  >
+                    {copiedPitch ? (
+                      <>
+                        <Check className="w-3 h-3 text-emerald-600" />
+                        <span className="text-emerald-700">Copied!</span>
+                      </>
+                    ) : (
+                      <>
+                        <Copy className="w-3 h-3" />
+                        <span>Copy Pitch</span>
+                      </>
+                    )}
+                  </button>
                 </div>
-                <div className="p-4 rounded-xl bg-slate-900 text-slate-200 text-xs font-mono leading-relaxed select-all">
-                  {salesAssistantData.emailDraft || salesAssistantData.pitch}
+                <div className="p-4 rounded-xl bg-slate-900 text-slate-200 text-xs font-mono leading-relaxed select-all whitespace-pre-wrap border border-slate-800 shadow-inner">
+                  {salesAssistantData.emailDraft || salesAssistantData.pitch || salesAssistantData.assistantReport || 'Generating personalized pitch...'}
                 </div>
               </div>
 
               {/* Discovery Questions */}
-              {salesAssistantData.discoveryQuestions && (
+              {salesAssistantData.discoveryQuestions && salesAssistantData.discoveryQuestions.length > 0 && (
                 <div>
                   <div className="text-xs font-bold text-slate-900 uppercase tracking-wider mb-1.5">
                     High-Impact Discovery Questions
                   </div>
                   <ul className="space-y-1.5">
                     {salesAssistantData.discoveryQuestions.map((q: string, i: number) => (
-                      <li key={i} className="text-xs text-slate-700 bg-slate-50 border border-slate-200 p-2.5 rounded-lg">
-                        &bull; {q}
+                      <li key={i} className="text-xs text-slate-700 bg-slate-50 border border-slate-200 p-2.5 rounded-lg flex items-start gap-2">
+                        <span className="text-indigo-600 font-bold shrink-0">&bull;</span>
+                        <span>{q}</span>
                       </li>
                     ))}
                   </ul>
@@ -537,7 +585,7 @@ export const LeadsPage: React.FC = () => {
               )}
 
               {/* Objections & Rebuttals */}
-              {salesAssistantData.objectionHandling && (
+              {salesAssistantData.objectionHandling && salesAssistantData.objectionHandling.length > 0 && (
                 <div>
                   <div className="text-xs font-bold text-slate-900 uppercase tracking-wider mb-1.5">
                     Anticipated Objections & Battle-tested Rebuttals
@@ -546,7 +594,7 @@ export const LeadsPage: React.FC = () => {
                     {salesAssistantData.objectionHandling.map((obj: any, i: number) => (
                       <div key={i} className="p-3 rounded-lg bg-amber-50/60 border border-amber-200 text-xs">
                         <div className="font-bold text-amber-950">Objection: "{obj.objection}"</div>
-                        <div className="text-slate-700 mt-1">&rarr; <span className="font-semibold">Rebuttal:</span> {obj.rebuttal}</div>
+                        <div className="text-slate-700 mt-1">&rarr; <span className="font-semibold text-emerald-800">Rebuttal:</span> {obj.rebuttal}</div>
                       </div>
                     ))}
                   </div>

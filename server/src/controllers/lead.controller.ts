@@ -310,36 +310,78 @@ Return a strict JSON object with:
 
       const workspace = await Workspace.findById(req.workspace!.workspaceId);
       const prompt = `You are the VentureOS AI Sales Assistant.
-Provide a 4-part sales intelligence dossier for this prospect:
+Generate a high-conversion sales intelligence pitch package for this prospect:
 Lead: ${lead.name} at ${lead.company}
-Industry: ${lead.industry || 'B2B'}
+Industry: ${lead.industry || 'B2B Software'}
 Deal Value: $${lead.dealValue}
 Current Status: ${lead.status}
 Seller Company: ${workspace?.name} (${workspace?.description || 'Enterprise SaaS'})
 
-Provide:
-1. Executive Lead Summary
-2. Next Best Action
-3. Personalized Outreach Email Draft
-4. Top 2 Anticipated Objections & Suggested Responses`;
+Return a strict JSON object with these exact keys:
+{
+  "summary": "2-3 sentence executive lead summary highlighting fit, potential, and urgency.",
+  "nextBestAction": "Immediate recommended sales outreach action.",
+  "pitch": "A complete, personalized cold/warm outreach email draft addressed to ${lead.name} with Subject Line, salutation, value proposition tailored to ${lead.company}, social proof, and a clear call to action.",
+  "emailDraft": "The same outreach email draft.",
+  "discoveryQuestions": [
+    "3 high-impact qualification questions tailored to this prospect's industry and deal size"
+  ],
+  "objectionHandling": [
+    {
+      "objection": "Anticipated customer objection 1",
+      "rebuttal": "Tactical, evidence-backed sales rebuttal"
+    },
+    {
+      "objection": "Anticipated customer objection 2",
+      "rebuttal": "Tactical, evidence-backed sales rebuttal"
+    }
+  ]
+}`;
 
       const orchestrator = AIOrchestrator.getInstance();
       const aiRes = await orchestrator.generate(
         [
-          { role: 'system', content: 'You are an elite enterprise B2B sales strategist.' },
+          { role: 'system', content: 'You are an elite enterprise B2B sales strategist. You must respond with valid JSON only.' },
           { role: 'user', content: prompt },
         ],
         {
           workspaceId: req.workspace!.workspaceId,
           userId: req.user!.userId,
           module: 'sales_assistant',
+          responseFormat: 'json',
         }
       );
+
+      // Parse JSON safely
+      let parsed: any = aiRes.parsedJson;
+      if (!parsed && aiRes.content) {
+        try {
+          const jsonMatch = aiRes.content.match(/\{[\s\S]*\}/);
+          if (jsonMatch) {
+            parsed = JSON.parse(jsonMatch[0]);
+          }
+        } catch {
+          parsed = null;
+        }
+      }
+
+      const pitch = parsed?.pitch || parsed?.emailDraft || aiRes.content;
+      const emailDraft = parsed?.emailDraft || pitch;
+      const summary = parsed?.summary || 'Lead qualification and intelligence analysis complete.';
+      const nextBestAction = parsed?.nextBestAction || 'Initiate executive outreach via email.';
+      const discoveryQuestions = Array.isArray(parsed?.discoveryQuestions) ? parsed.discoveryQuestions : [];
+      const objectionHandling = Array.isArray(parsed?.objectionHandling) ? parsed.objectionHandling : [];
 
       res.status(200).json({
         success: true,
         data: {
           leadId: lead._id,
+          pitch,
+          emailDraft,
+          summary,
+          nextBestAction,
+          discoveryQuestions,
+          objectionHandling,
           assistantReport: aiRes.content,
         },
       });
