@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { Mail, Lock, ArrowRight, ArrowLeft } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { Mail, Lock, ArrowRight, ArrowLeft, CheckCircle2 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { AuthService } from '../../services/api';
 import { Button } from '../../components/ui/Button';
@@ -8,12 +8,35 @@ import { VentureLogo } from '../../components/brand/VentureLogo';
 
 export const LoginPage: React.FC = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { login } = useAuth();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    const verifyToken = searchParams.get('verify');
+    const paramEmail = searchParams.get('email');
+
+    if (paramEmail) {
+      setEmail(paramEmail);
+    }
+
+    if (verifyToken) {
+      AuthService.verifyEmail(verifyToken)
+        .then((res) => {
+          if (res.data.success) {
+            setSuccessMessage('Email verified successfully! You may now sign in.');
+          }
+        })
+        .catch(() => {
+          setError('Email verification link is invalid or has expired.');
+        });
+    }
+  }, [searchParams]);
 
   const handleSubmit = async (e?: React.FormEvent, customEmail?: string, customPass?: string) => {
     if (e) e.preventDefault();
@@ -77,6 +100,13 @@ export const LoginPage: React.FC = () => {
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md relative z-10 px-4 sm:px-0">
         <div className="bg-slate-900/60 border border-slate-800 py-8 px-6 shadow-xl rounded-xl sm:px-8">
+          {successMessage && (
+            <div className="mb-5 p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 text-xs font-medium flex items-center gap-2">
+              <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+              <span>{successMessage}</span>
+            </div>
+          )}
+
           {error && (
             <div className="mb-5 p-3 rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-300 text-xs font-medium">
               {error}
@@ -104,9 +134,17 @@ export const LoginPage: React.FC = () => {
             </div>
 
             <div>
-              <label className="block text-xs font-mono uppercase tracking-wider text-slate-300 mb-1.5">
-                Password
-              </label>
+              <div className="flex items-center justify-between mb-1.5">
+                <label className="block text-xs font-mono uppercase tracking-wider text-slate-300">
+                  Password
+                </label>
+                <Link
+                  to="/forgot-password"
+                  className="text-[11px] text-blue-400 hover:text-blue-300 transition-colors"
+                >
+                  Forgot password?
+                </Link>
+              </div>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
                   <Lock className="w-4 h-4" />

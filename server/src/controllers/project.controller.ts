@@ -145,7 +145,7 @@ export class ProjectController {
 
   public static async planProjectWithAI(req: AuthenticatedRequest, res: Response): Promise<void> {
     try {
-      const userGoal = (req.body.goal || req.body.description || req.body.name || '').trim();
+      const userGoal = (req.body.goal || req.body.objective || req.body.description || req.body.name || '').trim();
       if (!userGoal) {
         res.status(400).json({
           success: false,
@@ -251,12 +251,17 @@ CRITICAL: Return ONLY valid JSON adhering to the specified structure. Do not inv
       let parsed: any = aiRes.parsedJson;
       if (!parsed && aiRes.content) {
         try {
-          const clean = aiRes.content
-            .replace(/^```json\s*/i, '')
-            .replace(/^```\s*/i, '')
-            .replace(/\s*```$/, '')
-            .trim();
-          parsed = JSON.parse(clean);
+          const jsonMatch = aiRes.content.match(/\{[\s\S]*\}/);
+          if (jsonMatch) {
+            parsed = JSON.parse(jsonMatch[0]);
+          } else {
+            const clean = aiRes.content
+              .replace(/^```json\s*/i, '')
+              .replace(/^```\s*/i, '')
+              .replace(/\s*```$/, '')
+              .trim();
+            parsed = JSON.parse(clean);
+          }
         } catch (jsonErr: any) {
           throw new Error('AI generated an invalid response format. Please retry.');
         }

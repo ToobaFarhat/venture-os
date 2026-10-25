@@ -3,6 +3,7 @@ import { Workspace, WorkspaceMember, User } from '../models';
 import { AuthenticatedRequest, WorkspaceRole } from '../types';
 import { AuditService } from '../services/audit.service';
 import { NotificationService } from '../services/notification.service';
+import { EmailService } from '../services/email.service';
 import { toObjectId } from '../utils';
 import mongoose from 'mongoose';
 
@@ -201,6 +202,20 @@ export class WorkspaceController {
         message: `You have been added to the workspace as ${memberRole}`,
         type: 'system',
       });
+
+      // Dispatch invitation email
+      try {
+        const currentWorkspace = await Workspace.findById(req.workspace!.workspaceId);
+        const inviter = await User.findById(req.user!.userId);
+        await EmailService.getInstance().sendWorkspaceInvitationEmail(
+          targetEmail,
+          inviter?.name || 'A team member',
+          currentWorkspace?.name || 'VentureOS Workspace',
+          memberRole
+        );
+      } catch (mailErr: any) {
+        console.warn('[WorkspaceController] Invitation email delivery warning:', mailErr.message);
+      }
 
       res.status(201).json({
         success: true,

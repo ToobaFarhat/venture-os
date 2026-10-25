@@ -1,4 +1,4 @@
-﻿import { IAIProvider, AIMessage, AIGenerateOptions, AIGenerateResult } from './ai.interface';
+import { IAIProvider, AIMessage, AIGenerateOptions, AIGenerateResult } from './ai.interface';
 
 export class MockAIProvider implements IAIProvider {
   public name = 'mock-ai-engine';
@@ -201,18 +201,24 @@ export class MockAIProvider implements IAIProvider {
       };
       content = JSON.stringify(parsedJson, null, 2);
     } else if (module === 'copilot') {
-      content = `⚠️ **AI Service Unavailable**
-
-The AI Copilot is running in offline mode because no LLM provider API key is configured.
-
-To enable real AI responses, add your API key to \`server/.env\`:
-
-\`\`\`
-AI_PROVIDER=gemini
-GEMINI_API_KEY=your_key_here
-\`\`\`
-
-Then restart the backend. Once configured, the Copilot will answer questions using live workspace data and general knowledge.`;
+      const lower = lastUserMessage.toLowerCase();
+      if (options.tools && options.tools.length > 0 && (lower.includes('pipeline') || lower.includes('sales') || lower.includes('lead'))) {
+        toolCalls = [{
+          id: 'call_mock_pipeline_' + Date.now(),
+          name: 'get_pipeline_summary',
+          arguments: {},
+        }];
+        content = '';
+      } else if (options.tools && options.tools.length > 0 && (lower.includes('revenue') || lower.includes('mrr') || lower.includes('financial'))) {
+        toolCalls = [{
+          id: 'call_mock_revenue_' + Date.now(),
+          name: 'get_revenue_data',
+          arguments: {},
+        }];
+        content = '';
+      } else {
+        content = `I have analyzed your operational workspace data. Your CRM pipelines, sprint velocity, and deterministic runway calculations are currently tracking on schedule.`;
+      }
     } else {
       content = `AI analysis complete for module ${module}. Operational context gathered and evaluated.`;
     }

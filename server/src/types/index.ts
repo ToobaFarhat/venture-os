@@ -10,6 +10,10 @@ export interface IUser {
   passwordHash: string;
   avatarUrl?: string;
   isEmailVerified: boolean;
+  verificationToken?: string;
+  verificationExpires?: Date;
+  resetPasswordToken?: string;
+  resetPasswordExpires?: Date;
   preferences?: {
     theme?: 'light' | 'dark' | 'system';
     currency?: string;

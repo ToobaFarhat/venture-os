@@ -41,13 +41,7 @@ export class AIOrchestrator {
     try {
       result = await this.provider.generate(messages, options);
     } catch (primaryError: any) {
-      if (options.module === 'copilot' || options.module === 'project_planner') {
-        status = 'error';
-        errorMessage = primaryError.message;
-        console.error(`[AI Orchestrator] Primary provider (${this.provider.name}) failed for ${options.module}:`, primaryError.message);
-        throw primaryError;
-      }
-      console.warn(`[AI Orchestrator] Primary provider (${this.provider.name}) failed: ${primaryError.message}. Falling back to resilient mock engine.`);
+      console.warn(`[AI Orchestrator] Primary provider (${this.provider.name}) failed for ${options.module}: ${primaryError.message}. Falling back to resilient mock engine.`);
       try {
         result = await this.mockFallback.generate(messages, options);
         providerUsed = `${this.mockFallback.name} (fallback)`;

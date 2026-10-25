@@ -44,7 +44,7 @@ export class GeminiAIProvider implements IAIProvider {
   private ai: GoogleGenAI | null = null;
 
   constructor() {
-    this.name = config.ai.geminiModel || 'gemini-flash-lite-latest';
+    this.name = config.ai.geminiModel || 'gemini-3.5-flash';
     if (config.ai.geminiApiKey) {
       this.ai = new GoogleGenAI({ apiKey: config.ai.geminiApiKey });
     }
@@ -178,7 +178,7 @@ export class GeminiAIProvider implements IAIProvider {
       throw new Error('Gemini API key is not configured');
     }
     const response: any = await this.ai.models.embedContent({
-      model: 'text-embedding-004',
+      model: 'gemini-embedding-001',
       contents: text,
     });
     return response.embedding?.values ?? response.embeddings?.[0]?.values ?? [];

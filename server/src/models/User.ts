@@ -10,6 +10,10 @@ const UserSchema = new Schema<UserDocument>(
     passwordHash: { type: String, required: true },
     avatarUrl: { type: String, default: '' },
     isEmailVerified: { type: Boolean, default: true },
+    verificationToken: { type: String, index: { sparse: true } },
+    verificationExpires: { type: Date },
+    resetPasswordToken: { type: String, index: { sparse: true } },
+    resetPasswordExpires: { type: Date },
     preferences: {
       theme: { type: String, enum: ['light', 'dark', 'system'], default: 'light' },
       currency: { type: String, default: 'USD' },

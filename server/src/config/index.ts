@@ -16,11 +16,21 @@ export const config = {
     expiresIn: process.env.JWT_EXPIRES_IN || '7d',
   },
   ai: {
-    provider: (process.env.AI_PROVIDER || 'mock') as 'gemini' | 'openai' | 'anthropic' | 'mock',
+    provider: (process.env.NODE_ENV === 'test' && !process.env.TEST_AI_LIVE
+      ? 'mock'
+      : (process.env.AI_PROVIDER || 'gemini')) as 'gemini' | 'openai' | 'anthropic' | 'mock',
     geminiApiKey: process.env.GEMINI_API_KEY || '',
-    geminiModel: process.env.GEMINI_MODEL || 'gemini-flash-lite-latest',
+    geminiModel: process.env.GEMINI_MODEL || 'gemini-3.5-flash',
     openaiApiKey: process.env.OPENAI_API_KEY || '',
     anthropicApiKey: process.env.ANTHROPIC_API_KEY || '',
+  },
+  email: {
+    host: process.env.SMTP_HOST || '',
+    port: parseInt(process.env.SMTP_PORT || '587', 10),
+    secure: process.env.SMTP_SECURE === 'true',
+    user: process.env.SMTP_USER || '',
+    pass: process.env.SMTP_PASS || '',
+    from: process.env.FROM_EMAIL || 'VentureOS <no-reply@ventureos.io>',
   },
   upload: {
     dir: path.resolve(process.cwd(), process.env.UPLOAD_DIR || 'uploads'),
