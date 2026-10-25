@@ -35,10 +35,13 @@ export const FeedbackPage: React.FC = () => {
   const [importModalOpen, setImportModalOpen] = useState(false);
   const [csvFile, setCsvFile] = useState<File | null>(null);
   const [importing, setImporting] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   // Form
   const [formData, setFormData] = useState({
     customerName: '',
+    contactNumber: '',
     content: '',
     source: 'Email Survey',
     rating: 5,
@@ -65,21 +68,29 @@ export const FeedbackPage: React.FC = () => {
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
+    setSubmitting(true);
+    setSubmitError(null);
     try {
       const res = await FeedbackService.create(formData);
       if (res.data.success) {
         setCreateModalOpen(false);
         setFormData({
           customerName: '',
+          contactNumber: '',
           content: '',
           source: 'Email Survey',
           rating: 5,
           topic: 'product',
         });
         fetchFeedback();
+      } else {
+        setSubmitError(res.data.error || 'Failed to submit feedback.');
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error('Failed to create feedback:', err);
+      setSubmitError(err.response?.data?.error || err.message || 'Failed to create feedback. Please try again.');
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -147,8 +158,8 @@ export const FeedbackPage: React.FC = () => {
           <Button variant="outline" size="sm" onClick={() => setImportModalOpen(true)} icon={<Upload className="w-3.5 h-3.5" />}>
             Import CSV
           </Button>
-          <Button size="sm" onClick={() => setCreateModalOpen(true)} icon={<Plus className="w-3.5 h-3.5" />}>
-            Log Feedback
+          <Button size="sm" onClick={() => { setSubmitError(null); setCreateModalOpen(true); }} icon={<Plus className="w-3.5 h-3.5" />}>
+            Add Feedback
           </Button>
         </div>
       </div>
@@ -267,49 +278,66 @@ export const FeedbackPage: React.FC = () => {
         ))}
       </div>
 
-      {/* Log Feedback Modal */}
+      {/* Add Feedback Modal */}
       <Modal
         isOpen={createModalOpen}
         onClose={() => setCreateModalOpen(false)}
-        title="Log Customer Feedback"
+        title="Add Customer Feedback"
         size="md"
       >
         <form onSubmit={handleCreate} className="space-y-4">
-          <Input
-            label="Customer or Contact Name"
-            placeholder="David Henderson (Apex Cloud)"
-            value={formData.customerName}
-            onChange={(e) => setFormData({ ...formData, customerName: e.target.value })}
-            required
-          />
+          {submitError && (
+            <div className="p-3 rounded-lg bg-rose-50 border border-rose-200 text-rose-700 text-xs font-medium">
+              {submitError}
+            </div>
+          )}
 
-          <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1.5">
-              Feedback Content
-            </label>
-            <textarea
-              rows={4}
-              placeholder="e.g. The automated reporting pipeline is fantastic, but we experienced a 2-hour delay in yesterday's sync..."
-              value={formData.content}
-              onChange={(e) => setFormData({ ...formData, content: e.target.value })}
-              className="w-full rounded-lg border border-slate-300 p-3 text-xs focus:border-indigo-500 focus:outline-none"
+          <div className="grid grid-cols-2 gap-3">
+            <Input
+              label="Customer / Company Name"
+              placeholder="e.g. PulseMetric Analytics"
+              value={formData.customerName}
+              onChange={(e) => setFormData({ ...formData, customerName: e.target.value })}
               required
+            />
+            <Input
+              label="Contact Phone / Number (Optional)"
+              placeholder="e.g. +1 (555) 345-6789"
+              value={formData.contactNumber}
+              onChange={(e) => setFormData({ ...formData, contactNumber: e.target.value })}
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-3 gap-3">
             <div>
               <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1.5">
-                Topic
+                Rating
+              </label>
+              <select
+                value={formData.rating}
+                onChange={(e) => setFormData({ ...formData, rating: Number(e.target.value) })}
+                className="w-full rounded-lg border border-slate-300 text-xs p-2.5 focus:border-indigo-500 focus:outline-none"
+              >
+                <option value={5}>5 Stars (Excellent)</option>
+                <option value={4}>4 Stars (Good)</option>
+                <option value={3}>3 Stars (Average)</option>
+                <option value={2}>2 Stars (Poor)</option>
+                <option value={1}>1 Star (Critical)</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1.5">
+                Topic Category
               </label>
               <select
                 value={formData.topic}
                 onChange={(e) => setFormData({ ...formData, topic: e.target.value })}
                 className="w-full rounded-lg border border-slate-300 text-xs p-2.5 focus:border-indigo-500 focus:outline-none"
               >
+                <option value="support">Customer Support</option>
                 <option value="product">Product & Features</option>
                 <option value="pricing">Pricing & Billing</option>
-                <option value="support">Customer Support</option>
                 <option value="delivery">Delivery & SLA</option>
                 <option value="other">Other</option>
               </select>
@@ -324,19 +352,35 @@ export const FeedbackPage: React.FC = () => {
                 onChange={(e) => setFormData({ ...formData, source: e.target.value })}
                 className="w-full rounded-lg border border-slate-300 text-xs p-2.5 focus:border-indigo-500 focus:outline-none"
               >
-                <option value="Email Survey">Email Survey</option>
                 <option value="Support Ticket">Support Ticket</option>
+                <option value="Email Survey">Email Survey</option>
                 <option value="Quarterly Review">Quarterly Review</option>
                 <option value="Direct Call">Direct Call</option>
               </select>
             </div>
           </div>
 
+          <div>
+            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 mb-1.5">
+              Feedback Content / Review
+            </label>
+            <textarea
+              rows={4}
+              placeholder="e.g. Support response time was over 48 hours for our critical webhook failure..."
+              value={formData.content}
+              onChange={(e) => setFormData({ ...formData, content: e.target.value })}
+              className="w-full rounded-lg border border-slate-300 p-3 text-xs focus:border-indigo-500 focus:outline-none"
+              required
+            />
+          </div>
+
           <div className="pt-3 flex justify-end gap-2 border-t border-slate-100">
             <Button variant="outline" type="button" onClick={() => setCreateModalOpen(false)}>
               Cancel
             </Button>
-            <Button type="submit">Submit & Analyze</Button>
+            <Button type="submit" loading={submitting}>
+              Submit & Analyze with AI
+            </Button>
           </div>
         </form>
       </Modal>

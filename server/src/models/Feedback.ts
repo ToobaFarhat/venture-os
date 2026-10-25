@@ -4,7 +4,8 @@ export interface FeedbackDocument extends Document {
   workspaceId: mongoose.Types.ObjectId;
   customerId?: mongoose.Types.ObjectId;
   customerName: string;
-  source: 'manual' | 'csv' | 'review' | 'survey' | 'support_ticket';
+  contactNumber?: string;
+  source: string;
   content: string;
   rating?: number;
   sentiment: 'positive' | 'neutral' | 'negative';
@@ -22,9 +23,9 @@ const FeedbackSchema = new Schema<FeedbackDocument>(
     workspaceId: { type: Schema.Types.ObjectId, ref: 'Workspace', required: true, index: true },
     customerId: { type: Schema.Types.ObjectId, ref: 'Customer' },
     customerName: { type: String, required: true, trim: true },
+    contactNumber: { type: String, trim: true },
     source: {
       type: String,
-      enum: ['manual', 'csv', 'review', 'survey', 'support_ticket'],
       default: 'manual',
     },
     content: { type: String, required: true },

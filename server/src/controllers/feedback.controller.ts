@@ -32,11 +32,26 @@ export class FeedbackController {
 
   public static async create(req: AuthenticatedRequest, res: Response): Promise<void> {
     try {
-      const { customerId, customerName, content, source, rating } = req.body;
+      const { customerId, customerName, contactNumber, content, source, rating } = req.body;
 
       if (!content || !customerName) {
         res.status(400).json({ success: false, error: 'Customer name and feedback content are required' });
         return;
+      }
+
+      // Link customer by name if customerId not explicitly provided
+      let resolvedCustomerId = customerId ? new mongoose.Types.ObjectId(customerId) : undefined;
+      if (!resolvedCustomerId && customerName) {
+        const matchedCust = await Customer.findOne({
+          workspaceId: new mongoose.Types.ObjectId(req.workspace!.workspaceId),
+          $or: [
+            { name: { $regex: new RegExp(`^${customerName.trim()}$`, 'i') } },
+            { company: { $regex: new RegExp(`^${customerName.trim()}$`, 'i') } },
+          ],
+        });
+        if (matchedCust) {
+          resolvedCustomerId = matchedCust._id;
+        }
       }
 
       // 1. Run AI Sentiment & Topic Analysis
@@ -55,7 +70,7 @@ Return a strict JSON object:
       const orchestrator = AIOrchestrator.getInstance();
       const aiRes = await orchestrator.generate(
         [
-          { role: 'system', content: 'You are a customer experience and sentiment classification analyst.' },
+          { role: 'system', content: 'You are a customer experience and sentiment classification analyst. Return strict JSON only.' },
           { role: 'user', content: prompt },
         ],
         {
@@ -66,33 +81,46 @@ Return a strict JSON object:
         }
       );
 
-      const parsed = aiRes.parsedJson || {
-        sentiment: 'neutral',
-        sentimentScore: 0,
-        topic: 'product',
-        urgency: 'low',
-        suggestedAction: 'Review feedback during weekly sync.',
-      };
+      let parsed: any = aiRes.parsedJson;
+      if (!parsed && aiRes.content) {
+        try {
+          const m = aiRes.content.match(/\{[\s\S]*\}/);
+          if (m) parsed = JSON.parse(m[0]);
+        } catch {
+          parsed = null;
+        }
+      }
+
+      if (!parsed) {
+        parsed = {
+          sentiment: 'neutral',
+          sentimentScore: 0,
+          topic: 'product',
+          urgency: 'low',
+          suggestedAction: 'Review feedback during weekly sync.',
+        };
+      }
 
       const feedback = await Feedback.create({
         workspaceId: new mongoose.Types.ObjectId(req.workspace!.workspaceId),
-        customerId: customerId ? new mongoose.Types.ObjectId(customerId) : undefined,
+        customerId: resolvedCustomerId,
         customerName: customerName.trim(),
+        contactNumber: contactNumber ? contactNumber.trim() : undefined,
         content: content.trim(),
-        source: source || 'manual',
+        source: source || 'Email Survey',
         rating: rating ? Number(rating) : undefined,
-        sentiment: parsed.sentiment,
-        sentimentScore: parsed.sentimentScore,
-        topic: parsed.topic,
-        urgency: parsed.urgency,
-        suggestedAction: parsed.suggestedAction,
+        sentiment: parsed.sentiment || 'neutral',
+        sentimentScore: parsed.sentimentScore ?? 0,
+        topic: parsed.topic || 'product',
+        urgency: parsed.urgency || 'low',
+        suggestedAction: parsed.suggestedAction || 'Review feedback during customer sync.',
         aiProcessed: true,
       });
 
       // 2. Downstream impact: Update Customer Health Score if customer is linked
-      if (customerId) {
+      if (resolvedCustomerId) {
         const customer = await Customer.findOne({
-          _id: new mongoose.Types.ObjectId(customerId),
+          _id: resolvedCustomerId,
           workspaceId: new mongoose.Types.ObjectId(req.workspace!.workspaceId),
         });
 
@@ -136,6 +164,7 @@ Return a strict JSON object:
         data: feedback,
       });
     } catch (error: any) {
+      console.error('[FeedbackController.create error]:', error);
       res.status(500).json({ success: false, error: error.message || 'Failed to record feedback' });
     }
   }
