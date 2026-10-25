@@ -26,7 +26,7 @@ import { WorkspaceSettingsPage } from './pages/settings/WorkspaceSettingsPage';
 
 export const App: React.FC = () => {
   return (
-    <BrowserRouter>
+    <BrowserRouter future={{ v7_relativeSplatPath: true, v7_startTransition: true }}>
       <Routes>
         {/* Public Routes */}
         <Route path="/" element={<HomePage />} />
