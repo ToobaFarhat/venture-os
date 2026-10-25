@@ -11,6 +11,9 @@ import {
   RefreshCw,
   Search,
   BookOpen,
+  AlertCircle,
+  ShieldCheck,
+  Zap,
 } from 'lucide-react';
 import { CompetitorService } from '../../services/api';
 import { CompetitorItem } from '../../types';
@@ -22,6 +25,15 @@ import { Modal } from '../../components/ui/Modal';
 import { Skeleton } from '../../components/ui/Skeleton';
 import { useAuth } from '../../contexts/AuthContext';
 
+const initialCompetitorForm = {
+  companyName: '',
+  website: '',
+  products: '',
+  pricingModel: '',
+  targetAudience: '',
+  features: '',
+};
+
 export const CompetitorsPage: React.FC = () => {
   const { activeWorkspace } = useAuth();
   const [competitors, setCompetitors] = useState<CompetitorItem[]>([]);
@@ -29,6 +41,9 @@ export const CompetitorsPage: React.FC = () => {
 
   // Modals
   const [createModalOpen, setCreateModalOpen] = useState(false);
+  const [createLoading, setCreateLoading] = useState(false);
+  const [createError, setCreateError] = useState<string | null>(null);
+
   const [marketResearchModalOpen, setMarketResearchModalOpen] = useState(false);
   const [marketResearchData, setMarketResearchData] = useState<any>(null);
   const [generatingResearch, setGeneratingResearch] = useState(false);
@@ -38,14 +53,7 @@ export const CompetitorsPage: React.FC = () => {
   const [selectedCompetitor, setSelectedCompetitor] = useState<CompetitorItem | null>(null);
 
   // Form
-  const [formData, setFormData] = useState({
-    companyName: '',
-    website: '',
-    products: 'BI Analytics Platform',
-    pricingModel: 'Per Seat / $89/user/mo',
-    targetAudience: 'Mid-market & Enterprises',
-    features: 'Dashboarding, SQL Queries, Manual exports',
-  });
+  const [formData, setFormData] = useState(initialCompetitorForm);
 
   const fetchCompetitors = async () => {
     setLoading(true);
@@ -65,20 +73,50 @@ export const CompetitorsPage: React.FC = () => {
     fetchCompetitors();
   }, [activeWorkspace]);
 
+  const handleOpenCreateModal = () => {
+    setFormData(initialCompetitorForm);
+    setCreateError(null);
+    setCreateModalOpen(true);
+  };
+
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!formData.companyName.trim()) {
+      setCreateError('Competitor Company Name is required.');
+      return;
+    }
+
+    setCreateLoading(true);
+    setCreateError(null);
+
     try {
       const res = await CompetitorService.create({
-        ...formData,
-        products: formData.products.split(',').map((s) => s.trim()),
-        features: formData.features.split(',').map((s) => s.trim()),
+        companyName: formData.companyName.trim(),
+        website: formData.website.trim(),
+        pricingModel: formData.pricingModel.trim() || 'Subscription',
+        targetAudience: formData.targetAudience.trim() || 'Enterprise B2B',
+        products: formData.products ? formData.products.split(',').map((s) => s.trim()).filter(Boolean) : [],
+        features: formData.features ? formData.features.split(',').map((s) => s.trim()).filter(Boolean) : [],
       });
+
       if (res.data.success) {
         setCreateModalOpen(false);
-        fetchCompetitors();
+        setFormData(initialCompetitorForm);
+        await fetchCompetitors();
+
+        // Automatically trigger AI SWOT analysis for seamless experience
+        const createdId = res.data.data?._id;
+        if (createdId) {
+          handleAnalyzeCompetitor(createdId);
+        }
+      } else {
+        setCreateError(res.data.error || 'Failed to add competitor');
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error('Failed to add competitor:', err);
+      setCreateError(err.response?.data?.error || err.message || 'Failed to add competitor');
+    } finally {
+      setCreateLoading(false);
     }
   };
 
@@ -118,9 +156,9 @@ export const CompetitorsPage: React.FC = () => {
       <div className="space-y-6">
         <Skeleton className="h-8 w-64" />
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-          <Skeleton className="h-56" />
-          <Skeleton className="h-56" />
-          <Skeleton className="h-56" />
+          <Skeleton className="h-44" />
+          <Skeleton className="h-44" />
+          <Skeleton className="h-44" />
         </div>
       </div>
     );
@@ -133,10 +171,10 @@ export const CompetitorsPage: React.FC = () => {
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-slate-900 flex items-center gap-2.5">
             <Crosshair className="w-6 h-6 text-indigo-600" />
-            Competitor Intelligence & Market Whitespace
+            Competitors & SWOT Intelligence
           </h1>
           <p className="text-xs text-slate-500 mt-1">
-            Track rival products, feature parity gaps, pricing tiers, and generate autonomous market positioning research
+            Track industry rivals, benchmark pricing and feature sets, and automatically formulate 4-quadrant SWOT battlecards
           </p>
         </div>
 
@@ -149,7 +187,7 @@ export const CompetitorsPage: React.FC = () => {
           >
             Market Research Report
           </Button>
-          <Button size="sm" onClick={() => setCreateModalOpen(true)} icon={<Plus className="w-3.5 h-3.5" />}>
+          <Button size="sm" onClick={handleOpenCreateModal} icon={<Plus className="w-3.5 h-3.5" />}>
             Add Competitor
           </Button>
         </div>
@@ -181,21 +219,25 @@ export const CompetitorsPage: React.FC = () => {
               </div>
 
               <div className="py-2.5 border-y border-slate-100 my-3 text-xs space-y-1">
-                <div>
-                  <span className="text-slate-400 font-semibold uppercase text-[10px]">Audience: </span>
-                  <span className="text-slate-700">{comp.targetAudience || 'B2B Enterprise'}</span>
-                </div>
-                <div>
-                  <span className="text-slate-400 font-semibold uppercase text-[10px]">Features: </span>
-                  <span className="text-slate-600 line-clamp-2">
-                    {Array.isArray(comp.features) ? comp.features.join(', ') : comp.features}
-                  </span>
-                </div>
+                {comp.targetAudience && (
+                  <div>
+                    <span className="text-slate-400 font-semibold uppercase text-[10px]">Audience: </span>
+                    <span className="text-slate-700">{comp.targetAudience}</span>
+                  </div>
+                )}
+                {comp.features && comp.features.length > 0 && (
+                  <div>
+                    <span className="text-slate-400 font-semibold uppercase text-[10px]">Features: </span>
+                    <span className="text-slate-600 line-clamp-2">
+                      {Array.isArray(comp.features) ? comp.features.join(', ') : comp.features}
+                    </span>
+                  </div>
+                )}
               </div>
 
               {comp.aiAnalysis?.positioningComparison && (
                 <div className="p-2.5 rounded-lg bg-indigo-50/50 border border-indigo-100 text-[11px] text-slate-700 mb-3">
-                  <span className="font-bold text-indigo-900">Positioning vs VentureOS:</span>{' '}
+                  <span className="font-bold text-indigo-900">Positioning Advantage:</span>{' '}
                   {comp.aiAnalysis.positioningComparison}
                 </div>
               )}
@@ -236,8 +278,8 @@ export const CompetitorsPage: React.FC = () => {
             {selectedCompetitor.aiAnalysis ? (
               <div className="space-y-4">
                 {/* Strengths & Weaknesses */}
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="p-3 rounded-xl bg-emerald-50/60 border border-emerald-100">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="p-3.5 rounded-xl bg-emerald-50/60 border border-emerald-100">
                     <div className="text-xs font-bold text-emerald-900 uppercase mb-2 flex items-center gap-1.5">
                       <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
                       Rival Strengths
@@ -249,10 +291,10 @@ export const CompetitorsPage: React.FC = () => {
                     </ul>
                   </div>
 
-                  <div className="p-3 rounded-xl bg-rose-50/60 border border-rose-100">
+                  <div className="p-3.5 rounded-xl bg-rose-50/60 border border-rose-100">
                     <div className="text-xs font-bold text-rose-900 uppercase mb-2 flex items-center gap-1.5">
                       <ShieldAlert className="w-3.5 h-3.5 text-rose-600" />
-                      Rival Weaknesses / Exploitable Gaps
+                      Rival Weaknesses
                     </div>
                     <ul className="text-xs text-slate-700 space-y-1">
                       {selectedCompetitor.aiAnalysis.weaknesses?.map((w, i) => (
@@ -262,31 +304,57 @@ export const CompetitorsPage: React.FC = () => {
                   </div>
                 </div>
 
-                {/* Market Whitespace Opportunities */}
-                {selectedCompetitor.aiAnalysis.marketGaps && (
-                  <div className="p-3.5 rounded-xl bg-indigo-50/60 border border-indigo-100">
-                    <div className="text-xs font-bold text-indigo-950 uppercase mb-1.5">
-                      Identified Market Whitespace Gaps
+                {/* Opportunities & Threats */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="p-3.5 rounded-xl bg-blue-50/60 border border-blue-100">
+                    <div className="text-xs font-bold text-blue-900 uppercase mb-2 flex items-center gap-1.5">
+                      <Zap className="w-3.5 h-3.5 text-blue-600" />
+                      Our Strategic Opportunities
                     </div>
                     <ul className="text-xs text-slate-700 space-y-1">
-                      {selectedCompetitor.aiAnalysis.marketGaps.map((g, i) => (
-                        <li key={i}>&rarr; {g}</li>
+                      {selectedCompetitor.aiAnalysis.opportunities?.map((o, i) => (
+                        <li key={i}>&bull; {o}</li>
                       ))}
                     </ul>
+                  </div>
+
+                  <div className="p-3.5 rounded-xl bg-amber-50/60 border border-amber-100">
+                    <div className="text-xs font-bold text-amber-900 uppercase mb-2 flex items-center gap-1.5">
+                      <TrendingUp className="w-3.5 h-3.5 text-amber-600" />
+                      Identified Market Threats
+                    </div>
+                    <ul className="text-xs text-slate-700 space-y-1">
+                      {selectedCompetitor.aiAnalysis.threats?.map((t, i) => (
+                        <li key={i}>&bull; {t}</li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+
+                {/* Positioning Comparison Card */}
+                {selectedCompetitor.aiAnalysis.positioningComparison && (
+                  <div className="p-4 rounded-xl bg-indigo-50/70 border border-indigo-100 text-xs">
+                    <div className="font-bold text-indigo-950 uppercase tracking-wider text-[11px] mb-1">
+                      Our Strategic Positioning vs {selectedCompetitor.companyName}
+                    </div>
+                    <p className="text-slate-700 leading-relaxed">
+                      {selectedCompetitor.aiAnalysis.positioningComparison}
+                    </p>
                   </div>
                 )}
               </div>
             ) : (
               <div className="p-8 text-center text-slate-500">
                 <Sparkles className="w-8 h-8 text-indigo-600 mx-auto mb-2" />
-                <div className="text-xs font-semibold">No AI SWOT analysis generated yet.</div>
+                <div className="text-xs font-semibold">No SWOT matrix generated yet for this competitor.</div>
                 <Button
                   variant="ai"
                   size="sm"
                   className="mt-3"
                   onClick={() => handleAnalyzeCompetitor(selectedCompetitor._id)}
+                  loading={analyzingId === selectedCompetitor._id}
                 >
-                  Analyze Competitor Now
+                  Generate SWOT Matrix Now
                 </Button>
               </div>
             )}
@@ -294,7 +362,7 @@ export const CompetitorsPage: React.FC = () => {
         </Modal>
       )}
 
-      {/* Holistic Market Research Modal */}
+      {/* Market Research Report Modal */}
       <Modal
         isOpen={marketResearchModalOpen}
         onClose={() => setMarketResearchModalOpen(false)}
@@ -310,7 +378,7 @@ export const CompetitorsPage: React.FC = () => {
             </div>
           ) : marketResearchData ? (
             <div className="space-y-4 text-xs text-slate-700">
-              <div className="p-4 rounded-xl bg-slate-900 text-slate-200 leading-relaxed font-mono whitespace-pre-line">
+              <div className="p-4 rounded-xl bg-slate-900 text-slate-200 leading-relaxed font-mono whitespace-pre-line text-[11px]">
                 {typeof marketResearchData === 'string'
                   ? marketResearchData
                   : marketResearchData.summary || JSON.stringify(marketResearchData, null, 2)}
@@ -332,39 +400,54 @@ export const CompetitorsPage: React.FC = () => {
         size="md"
       >
         <form onSubmit={handleCreate} className="space-y-4">
+          {createError && (
+            <div className="p-3 rounded-lg bg-rose-50 border border-rose-200 text-xs text-rose-700 font-medium flex items-center gap-1.5">
+              <AlertCircle className="w-3.5 h-3.5 text-rose-500 shrink-0" />
+              <span>{createError}</span>
+            </div>
+          )}
+
           <Input
             label="Competitor Company Name"
-            placeholder="MetricStream Analytics"
+            placeholder="e.g. LegacyCRM Suite"
             value={formData.companyName}
             onChange={(e) => setFormData({ ...formData, companyName: e.target.value })}
             required
           />
 
-          <Input
-            label="Website URL"
-            placeholder="metricstream.io"
-            value={formData.website}
-            onChange={(e) => setFormData({ ...formData, website: e.target.value })}
-          />
+          <div className="grid grid-cols-2 gap-3">
+            <Input
+              label="Product Name"
+              placeholder="e.g. LegacyCRM Enterprise"
+              value={formData.products}
+              onChange={(e) => setFormData({ ...formData, products: e.target.value })}
+            />
+            <Input
+              label="Website URL"
+              placeholder="e.g. legacycrm.com"
+              value={formData.website}
+              onChange={(e) => setFormData({ ...formData, website: e.target.value })}
+            />
+          </div>
 
           <div className="grid grid-cols-2 gap-3">
             <Input
               label="Pricing Model"
-              placeholder="$99 / user / month"
+              placeholder="e.g. $120 / seat / month"
               value={formData.pricingModel}
               onChange={(e) => setFormData({ ...formData, pricingModel: e.target.value })}
             />
             <Input
               label="Target Audience"
-              placeholder="Enterprise / Scaleups"
+              placeholder="e.g. Large Enterprise"
               value={formData.targetAudience}
               onChange={(e) => setFormData({ ...formData, targetAudience: e.target.value })}
             />
           </div>
 
           <Input
-            label="Core Features (comma separated)"
-            placeholder="Dashboarding, Data warehouses, SQL alerts..."
+            label="Key Features / Notes"
+            placeholder="e.g. Clunky UI, expensive consultants, high market share"
             value={formData.features}
             onChange={(e) => setFormData({ ...formData, features: e.target.value })}
           />
@@ -373,7 +456,9 @@ export const CompetitorsPage: React.FC = () => {
             <Button variant="outline" type="button" onClick={() => setCreateModalOpen(false)}>
               Cancel
             </Button>
-            <Button type="submit">Save Competitor</Button>
+            <Button type="submit" loading={createLoading}>
+              Save Competitor
+            </Button>
           </div>
         </form>
       </Modal>

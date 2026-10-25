@@ -152,11 +152,11 @@
 - **Preconditions:** On /marketing
 - **Steps Executed:** Create campaign, generate AI strategy, copy variants, target audience breakdown
 - **Expected Result:** Feature executes cleanly without unhandled exceptions; UI displays expected structured response; database reflects new records.
-- **Actual Result:** `[Leave blank until tested]`
-- **Status:** `NOT TESTED`
-- **Screenshot / Evidence Reference:** `[e.g., docs/evidence/test-13.png]`
-- **Error Message (if any):** `[None]`
-- **Notes & Observations:** `[Record any UX observations, timing, or discrepancies]`
+- **Actual Result:** Created campaign 'Q4 Enterprise SaaS Modernization' with \$8,000 budget. AI Studio generated comprehensive GTM strategy, target personas, Ad Copy Variations, Social Posts, and Multi-Step Email Outreach Sequences with 1-click clipboard copy.
+- **Status:** `PASSED`
+- **Screenshot / Evidence Reference:** User screenshot `media_1792957232243.png`
+- **Error Message (if any):** None
+- **Notes & Observations:** Form modal updated with clean placeholders and flexible channels. Personalized company name signature integrated.
 
 ---
 ### [TEST-14] Competitors & SWOT Market Intelligence
