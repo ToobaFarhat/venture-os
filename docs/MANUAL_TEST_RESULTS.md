@@ -86,66 +86,66 @@
 - **Preconditions:** On /customers
 - **Steps Executed:** View customer list, check MRR/LTV, trigger churn analysis, review reasons
 - **Expected Result:** Feature executes cleanly without unhandled exceptions; UI displays expected structured response; database reflects new records.
-- **Actual Result:** `[Leave blank until tested]`
-- **Status:** `NOT TESTED`
-- **Screenshot / Evidence Reference:** `[e.g., docs/evidence/test-07.png]`
-- **Error Message (if any):** `[None]`
-- **Notes & Observations:** `[Record any UX observations, timing, or discrepancies]`
+- **Actual Result:** Customers 360 displays converted customers, MRR/LTV metrics, and deterministic churn risk assessment correctly.
+- **Status:** `PASSED`
+- **Screenshot / Evidence Reference:** Verified in live session
+- **Error Message (if any):** None
+- **Notes & Observations:** PulseMetric Analytics displayed with accurate churn probability and risk factor breakdown.
 
 ---
 ### [TEST-08] Customer Feedback Ingestion & Sentiment Analysis
 - **Preconditions:** On /feedback
 - **Steps Executed:** Submit positive, negative, and neutral feedback; verify sentiment and urgency tags
 - **Expected Result:** Feature executes cleanly without unhandled exceptions; UI displays expected structured response; database reflects new records.
-- **Actual Result:** `[Leave blank until tested]`
-- **Status:** `NOT TESTED`
-- **Screenshot / Evidence Reference:** `[e.g., docs/evidence/test-08.png]`
-- **Error Message (if any):** `[None]`
-- **Notes & Observations:** `[Record any UX observations, timing, or discrepancies]`
+- **Actual Result:** Feedback modal created feedback with 1-5 star ratings, contact phone, deterministic sentiment tagging, and customer name linking.
+- **Status:** `PASSED`
+- **Screenshot / Evidence Reference:** Verified in live session
+- **Error Message (if any):** None
+- **Notes & Observations:** Negative webhook outage feedback properly classified with high urgency and linked to customer.
 
 ---
 ### [TEST-09] Project & Task Management
 - **Preconditions:** On /projects
 - **Steps Executed:** Create project manually, create tasks, assign priorities, due dates, toggle completion
 - **Expected Result:** Feature executes cleanly without unhandled exceptions; UI displays expected structured response; database reflects new records.
-- **Actual Result:** `[Leave blank until tested]`
-- **Status:** `NOT TESTED`
-- **Screenshot / Evidence Reference:** `[e.g., docs/evidence/test-09.png]`
-- **Error Message (if any):** `[None]`
-- **Notes & Observations:** `[Record any UX observations, timing, or discrepancies]`
+- **Actual Result:** Project and tasks created manually, status updated to Done, progress percentage dynamically recalculated.
+- **Status:** `PASSED`
+- **Screenshot / Evidence Reference:** Verified in live session
+- **Error Message (if any):** None
+- **Notes & Observations:** Clean task status transitions and project progress tracking verified.
 
 ---
 ### [TEST-10] AI Project Planner & Human Approval
 - **Preconditions:** On /projects
 - **Steps Executed:** Click 'Plan with AI', enter project objective, review generated milestones/tasks, click Approve
 - **Expected Result:** Feature executes cleanly without unhandled exceptions; UI displays expected structured response; database reflects new records.
-- **Actual Result:** `[Leave blank until tested]`
-- **Status:** `NOT TESTED`
-- **Screenshot / Evidence Reference:** `[e.g., docs/evidence/test-10.png]`
-- **Error Message (if any):** `[None]`
-- **Notes & Observations:** `[Record any UX observations, timing, or discrepancies]`
+- **Actual Result:** AI planner generated comprehensive WBS blueprint with milestones and tasks. Human review and approval instantiated project in MongoDB.
+- **Status:** `PASSED`
+- **Screenshot / Evidence Reference:** Verified in live session
+- **Error Message (if any):** None
+- **Notes & Observations:** Human-in-the-loop authorization successfully verified before creating database records.
 
 ---
 ### [TEST-11] Document Intelligence & Vector RAG Q&A
 - **Preconditions:** On /documents
 - **Steps Executed:** Upload text document, wait for chunking/indexing, ask grounded questions
 - **Expected Result:** Feature executes cleanly without unhandled exceptions; UI displays expected structured response; database reflects new records.
-- **Actual Result:** `[Leave blank until tested]`
-- **Status:** `NOT TESTED`
-- **Screenshot / Evidence Reference:** `[e.g., docs/evidence/test-11.png]`
-- **Error Message (if any):** `[None]`
-- **Notes & Observations:** `[Record any UX observations, timing, or discrepancies]`
+- **Actual Result:** Document uploaded, multi-format text extracted, sliding-window chunked, and vector indexed. Hybrid search returned accurate grounded SLA answers with citations, and zero-hallucination refusal for ungrounded queries.
+- **Status:** `PASSED`
+- **Screenshot / Evidence Reference:** Verified in live session
+- **Error Message (if any):** None
+- **Notes & Observations:** Inspect extraction 3-tab modal verified (AI Intelligence, Extracted Text, Vector Chunks). Hybrid RAG Q&A confirmed.
 
 ---
 ### [TEST-12] Meeting Intelligence & Action Item Extraction
 - **Preconditions:** On /meetings
 - **Steps Executed:** Ingest transcript, generate summary, review extracted action items and tasks
 - **Expected Result:** Feature executes cleanly without unhandled exceptions; UI displays expected structured response; database reflects new records.
-- **Actual Result:** `[Leave blank until tested]`
-- **Status:** `NOT TESTED`
-- **Screenshot / Evidence Reference:** `[e.g., docs/evidence/test-12.png]`
-- **Error Message (if any):** `[None]`
-- **Notes & Observations:** `[Record any UX observations, timing, or discrepancies]`
+- **Actual Result:** Meeting transcript ingested and analyzed successfully. AI extracted executive summary, key strategic decisions, and actionable tasks with assignees and due dates.
+- **Status:** `PASSED`
+- **Screenshot / Evidence Reference:** Verified in live session
+- **Error Message (if any):** None
+- **Notes & Observations:** Action items extracted cleanly for Sarah Jenkins (hotfix deployment), Elena Rostova (customer communication), and David Chen (renewal proposal). Approved action items successfully instantiate tasks.
 
 ---
 ### [TEST-13] AI Marketing Studio & Campaign Strategy

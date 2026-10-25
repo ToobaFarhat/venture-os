@@ -76,7 +76,6 @@ const MarketingCampaignSchema = new Schema<MarketingCampaignDocument>(
     audience: { type: String, required: true },
     platform: {
       type: String,
-      enum: ['Email', 'LinkedIn', 'Twitter', 'Google Ads', 'Meta Ads', 'SEO', 'Multi-Channel'],
       default: 'Multi-Channel',
     },
     budget: { type: Number, default: 0 },

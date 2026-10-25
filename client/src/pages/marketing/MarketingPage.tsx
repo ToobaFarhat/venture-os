@@ -6,12 +6,14 @@ import {
   TrendingUp,
   Target,
   DollarSign,
-  MousePointer,
-  Eye,
   Layers,
   Copy,
   Check,
   RefreshCw,
+  AlertCircle,
+  FileText,
+  Mail,
+  Share2,
 } from 'lucide-react';
 import { MarketingService } from '../../services/api';
 import { MarketingCampaignItem } from '../../types';
@@ -23,6 +25,15 @@ import { Modal } from '../../components/ui/Modal';
 import { Skeleton } from '../../components/ui/Skeleton';
 import { useAuth } from '../../contexts/AuthContext';
 
+const initialForm = {
+  name: '',
+  product: '',
+  objective: '',
+  audience: '',
+  platform: 'LinkedIn & Search Ads',
+  budget: '',
+};
+
 export const MarketingPage: React.FC = () => {
   const { activeWorkspace } = useAuth();
   const [campaigns, setCampaigns] = useState<MarketingCampaignItem[]>([]);
@@ -30,19 +41,15 @@ export const MarketingPage: React.FC = () => {
 
   // Modals
   const [createModalOpen, setCreateModalOpen] = useState(false);
+  const [createLoading, setCreateLoading] = useState(false);
+  const [createError, setCreateError] = useState<string | null>(null);
+
   const [selectedCampaign, setSelectedCampaign] = useState<MarketingCampaignItem | null>(null);
   const [generatingContentId, setGeneratingContentId] = useState<string | null>(null);
-  const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
+  const [copiedIndex, setCopiedIndex] = useState<string | null>(null);
 
   // New Campaign Form
-  const [formData, setFormData] = useState({
-    name: '',
-    product: 'VentureOS Enterprise',
-    objective: 'Lead Generation',
-    audience: 'Founders & Heads of Operations',
-    platform: 'LinkedIn & Search Ads',
-    budget: 6000,
-  });
+  const [formData, setFormData] = useState(initialForm);
 
   const fetchCampaigns = async () => {
     setLoading(true);
@@ -62,16 +69,44 @@ export const MarketingPage: React.FC = () => {
     fetchCampaigns();
   }, [activeWorkspace]);
 
+  const handleOpenCreateModal = () => {
+    setFormData(initialForm);
+    setCreateError(null);
+    setCreateModalOpen(true);
+  };
+
   const handleCreateCampaign = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!formData.name.trim() || !formData.product.trim() || !formData.objective.trim()) {
+      setCreateError('Campaign Name, Product / Service, and Primary Objective are required.');
+      return;
+    }
+
+    setCreateLoading(true);
+    setCreateError(null);
+
     try {
-      const res = await MarketingService.create(formData);
+      const res = await MarketingService.create({
+        ...formData,
+        name: formData.name.trim(),
+        product: formData.product.trim(),
+        objective: formData.objective.trim(),
+        audience: formData.audience.trim() || 'Enterprise B2B Decision Makers',
+        budget: Number(formData.budget) || 0,
+      });
+
       if (res.data.success) {
         setCreateModalOpen(false);
-        fetchCampaigns();
+        setFormData(initialForm);
+        await fetchCampaigns();
+      } else {
+        setCreateError(res.data.error || 'Failed to create campaign');
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error('Failed to create campaign:', err);
+      setCreateError(err.response?.data?.error || err.message || 'Failed to create campaign. Please check inputs.');
+    } finally {
+      setCreateLoading(false);
     }
   };
 
@@ -81,7 +116,7 @@ export const MarketingPage: React.FC = () => {
       const res = await MarketingService.generateAIContent(id);
       if (res.data.success) {
         await fetchCampaigns();
-        const updated = (res.data.data?.campaign || res.data.data);
+        const updated = res.data.data?.campaign || res.data.data;
         if (updated) setSelectedCampaign(updated);
       }
     } catch (err) {
@@ -91,9 +126,9 @@ export const MarketingPage: React.FC = () => {
     }
   };
 
-  const handleCopy = (text: string, idx: number) => {
+  const handleCopy = (text: string, key: string) => {
     navigator.clipboard.writeText(text);
-    setCopiedIndex(idx);
+    setCopiedIndex(key);
     setTimeout(() => setCopiedIndex(null), 2000);
   };
 
@@ -102,9 +137,9 @@ export const MarketingPage: React.FC = () => {
       <div className="space-y-6">
         <Skeleton className="h-8 w-64" />
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-          <Skeleton className="h-56" />
-          <Skeleton className="h-56" />
-          <Skeleton className="h-56" />
+          <Skeleton className="h-44" />
+          <Skeleton className="h-44" />
+          <Skeleton className="h-44" />
         </div>
       </div>
     );
@@ -117,16 +152,16 @@ export const MarketingPage: React.FC = () => {
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-slate-900 flex items-center gap-2.5">
             <Megaphone className="w-6 h-6 text-indigo-600" />
-            Marketing & AI Content Studio
+            AI Marketing Studio
           </h1>
           <p className="text-xs text-slate-500 mt-1">
-            Data-backed multi-channel campaigns, AI copywriting, persona strategies, and ROI attribution
+            Formulate multi-channel go-to-market strategies, target buyer personas, ad copy variations, and outbound email sequences
           </p>
         </div>
 
         <div className="flex items-center gap-2">
-          <Button size="sm" onClick={() => setCreateModalOpen(true)} icon={<Plus className="w-3.5 h-3.5" />}>
-            Create Campaign
+          <Button size="sm" onClick={handleOpenCreateModal} icon={<Plus className="w-3.5 h-3.5" />}>
+            + New Campaign
           </Button>
         </div>
       </div>
@@ -156,20 +191,21 @@ export const MarketingPage: React.FC = () => {
                 </div>
 
                 <div className="text-xs text-slate-500 mb-3">
-                  {camp.platform} • Target: {camp.audience}
+                  <span className="font-semibold text-indigo-600">{camp.product}</span> • {camp.platform}
+                  {camp.audience && <div className="text-[11px] text-slate-400 mt-0.5 truncate">Target: {camp.audience}</div>}
                 </div>
 
                 {/* Metrics Grid */}
                 <div className="grid grid-cols-3 gap-2 p-3 rounded-xl bg-slate-50 border border-slate-100 mb-3 text-center">
                   <div>
-                    <div className="text-[10px] uppercase font-semibold text-slate-400">Clicks</div>
+                    <div className="text-[10px] uppercase font-semibold text-slate-400">Budget</div>
                     <div className="text-xs font-bold text-slate-900 mt-0.5">
-                      {(perf.clicks || 0).toLocaleString()}
+                      ${(camp.budget || 0).toLocaleString()}
                     </div>
                   </div>
                   <div>
-                    <div className="text-[10px] uppercase font-semibold text-slate-400">CTR</div>
-                    <div className="text-xs font-bold text-slate-900 mt-0.5">{perf.ctr || 0}%</div>
+                    <div className="text-[10px] uppercase font-semibold text-slate-400">Clicks</div>
+                    <div className="text-xs font-bold text-slate-900 mt-0.5">{(perf.clicks || 0).toLocaleString()}</div>
                   </div>
                   <div>
                     <div className="text-[10px] uppercase font-semibold text-slate-400">ROI</div>
@@ -192,7 +228,7 @@ export const MarketingPage: React.FC = () => {
                   onClick={() => handleGenerateAIContent(camp._id)}
                   icon={<Sparkles className="w-3.5 h-3.5 text-indigo-200" />}
                 >
-                  Generate Content
+                  {camp.aiContent ? 'Regenerate Strategy' : 'Generate AI Strategy'}
                 </Button>
 
                 <Button
@@ -218,23 +254,71 @@ export const MarketingPage: React.FC = () => {
         >
           <div className="space-y-4 max-h-[550px] overflow-y-auto pr-1">
             {selectedCampaign.aiContent ? (
-              <div className="space-y-4">
+              <div className="space-y-5">
                 {/* Strategy */}
                 {selectedCampaign.aiContent.strategy && (
                   <div>
-                    <div className="text-xs font-bold uppercase text-slate-400 mb-1">
+                    <div className="text-xs font-bold uppercase text-slate-400 mb-1 flex items-center gap-1.5">
+                      <Target className="w-3.5 h-3.5 text-indigo-600" />
                       Campaign Strategy & Core Narrative
                     </div>
-                    <p className="text-xs text-slate-700 bg-slate-50 p-3 rounded-xl border border-slate-200 leading-relaxed">
+                    <p className="text-xs text-slate-700 bg-slate-50 p-3.5 rounded-xl border border-slate-200 leading-relaxed">
                       {selectedCampaign.aiContent.strategy}
                     </p>
                   </div>
                 )}
 
-                {/* Social Posts */}
-                {selectedCampaign.aiContent.socialPosts && (
+                {/* Target Personas */}
+                {selectedCampaign.aiContent.personas && selectedCampaign.aiContent.personas.length > 0 && (
                   <div>
-                    <div className="text-xs font-bold uppercase text-indigo-700 mb-2">
+                    <div className="text-xs font-bold uppercase text-slate-400 mb-1.5">
+                      Target Buyer Personas
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      {selectedCampaign.aiContent.personas.map((persona, i) => (
+                        <div key={i} className="p-2.5 rounded-lg bg-indigo-50/60 border border-indigo-100 text-xs text-indigo-900 font-medium">
+                          &bull; {persona}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Ad Copy Variations */}
+                {selectedCampaign.aiContent.adCopy && selectedCampaign.aiContent.adCopy.length > 0 && (
+                  <div>
+                    <div className="text-xs font-bold uppercase text-indigo-700 mb-2 flex items-center gap-1.5">
+                      <Megaphone className="w-3.5 h-3.5" />
+                      Ad Copy Variations ({selectedCampaign.aiContent.adCopy.length})
+                    </div>
+                    <div className="space-y-2">
+                      {selectedCampaign.aiContent.adCopy.map((ad, i) => (
+                        <div key={i} className="p-3 rounded-xl bg-slate-50 border border-slate-200 text-xs">
+                          <div className="flex items-center justify-between mb-1">
+                            <span className="font-bold text-slate-900">{ad.headline}</span>
+                            <button
+                              onClick={() => handleCopy(`${ad.headline}\n${ad.description}\nCTA: ${ad.callToAction}`, `ad_${i}`)}
+                              className="text-slate-400 hover:text-indigo-600 flex items-center gap-1 text-[11px]"
+                            >
+                              {copiedIndex === `ad_${i}` ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
+                              {copiedIndex === `ad_${i}` ? 'Copied' : 'Copy'}
+                            </button>
+                          </div>
+                          <p className="text-slate-600 text-[11px] mb-1.5">{ad.description}</p>
+                          <span className="inline-block px-2 py-0.5 rounded bg-indigo-100 text-indigo-700 text-[10px] font-semibold">
+                            CTA: {ad.callToAction}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Social Posts */}
+                {selectedCampaign.aiContent.socialPosts && selectedCampaign.aiContent.socialPosts.length > 0 && (
+                  <div>
+                    <div className="text-xs font-bold uppercase text-indigo-700 mb-2 flex items-center gap-1.5">
+                      <Share2 className="w-3.5 h-3.5" />
                       Social Posts ({selectedCampaign.aiContent.socialPosts.length})
                     </div>
                     <div className="space-y-2">
@@ -243,14 +327,14 @@ export const MarketingPage: React.FC = () => {
                           <div className="flex items-center justify-between mb-1">
                             <span className="font-bold text-slate-900">{post.platform}</span>
                             <button
-                              onClick={() => handleCopy(post.postContent, i)}
+                              onClick={() => handleCopy(post.postContent, `post_${i}`)}
                               className="text-slate-400 hover:text-indigo-600 flex items-center gap-1 text-[11px]"
                             >
-                              {copiedIndex === i ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
-                              {copiedIndex === i ? 'Copied' : 'Copy'}
+                              {copiedIndex === `post_${i}` ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
+                              {copiedIndex === `post_${i}` ? 'Copied' : 'Copy'}
                             </button>
                           </div>
-                          <p className="text-slate-700 leading-relaxed whitespace-pre-line">
+                          <p className="text-slate-700 leading-relaxed whitespace-pre-line text-[11px]">
                             {post.postContent}
                           </p>
                         </div>
@@ -260,18 +344,26 @@ export const MarketingPage: React.FC = () => {
                 )}
 
                 {/* Email Sequences */}
-                {selectedCampaign.aiContent.emailSequences && (
+                {selectedCampaign.aiContent.emailSequences && selectedCampaign.aiContent.emailSequences.length > 0 && (
                   <div>
-                    <div className="text-xs font-bold uppercase text-indigo-700 mb-2">
+                    <div className="text-xs font-bold uppercase text-indigo-700 mb-2 flex items-center gap-1.5">
+                      <Mail className="w-3.5 h-3.5" />
                       Email Outreach Sequence
                     </div>
                     <div className="space-y-2">
                       {selectedCampaign.aiContent.emailSequences.map((seq, i) => (
                         <div key={i} className="p-3 rounded-xl bg-slate-50 border border-slate-200 text-xs">
-                          <div className="font-bold text-slate-900 mb-1">
-                            Step {seq.step}: {seq.subject}
+                          <div className="flex items-center justify-between mb-1">
+                            <span className="font-bold text-slate-900">Step {seq.step}: {seq.subject}</span>
+                            <button
+                              onClick={() => handleCopy(`Subject: ${seq.subject}\n\n${seq.body}`, `email_${i}`)}
+                              className="text-slate-400 hover:text-indigo-600 flex items-center gap-1 text-[11px]"
+                            >
+                              {copiedIndex === `email_${i}` ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
+                              {copiedIndex === `email_${i}` ? 'Copied' : 'Copy'}
+                            </button>
                           </div>
-                          <p className="text-slate-700 whitespace-pre-line">{seq.body}</p>
+                          <p className="text-slate-700 whitespace-pre-line text-[11px] leading-relaxed">{seq.body}</p>
                         </div>
                       ))}
                     </div>
@@ -287,6 +379,7 @@ export const MarketingPage: React.FC = () => {
                   size="sm"
                   className="mt-3"
                   onClick={() => handleGenerateAIContent(selectedCampaign._id)}
+                  loading={generatingContentId === selectedCampaign._id}
                 >
                   Generate Content Now
                 </Button>
@@ -304,9 +397,16 @@ export const MarketingPage: React.FC = () => {
         size="md"
       >
         <form onSubmit={handleCreateCampaign} className="space-y-4">
+          {createError && (
+            <div className="p-3 rounded-lg bg-rose-50 border border-rose-200 text-xs text-rose-700 font-medium flex items-center gap-1.5">
+              <AlertCircle className="w-3.5 h-3.5 text-rose-500 shrink-0" />
+              <span>{createError}</span>
+            </div>
+          )}
+
           <Input
             label="Campaign Name"
-            placeholder="Q3 Enterprise ABM Outbound"
+            placeholder="e.g. Q4 Enterprise SaaS Modernization"
             value={formData.name}
             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
             required
@@ -315,12 +415,14 @@ export const MarketingPage: React.FC = () => {
           <div className="grid grid-cols-2 gap-3">
             <Input
               label="Product / Service"
+              placeholder="e.g. Northstar Desk & Insights"
               value={formData.product}
               onChange={(e) => setFormData({ ...formData, product: e.target.value })}
               required
             />
             <Input
               label="Primary Objective"
+              placeholder="e.g. Lead Generation & Inbound Demos"
               value={formData.objective}
               onChange={(e) => setFormData({ ...formData, objective: e.target.value })}
               required
@@ -330,6 +432,7 @@ export const MarketingPage: React.FC = () => {
           <div className="grid grid-cols-2 gap-3">
             <Input
               label="Target Audience"
+              placeholder="e.g. VPs of Engineering & Support Leads"
               value={formData.audience}
               onChange={(e) => setFormData({ ...formData, audience: e.target.value })}
               required
@@ -337,8 +440,9 @@ export const MarketingPage: React.FC = () => {
             <Input
               label="Ad Budget ($)"
               type="number"
+              placeholder="e.g. 8000"
               value={formData.budget}
-              onChange={(e) => setFormData({ ...formData, budget: Number(e.target.value) })}
+              onChange={(e) => setFormData({ ...formData, budget: e.target.value })}
               required
             />
           </div>
@@ -350,12 +454,13 @@ export const MarketingPage: React.FC = () => {
             <select
               value={formData.platform}
               onChange={(e) => setFormData({ ...formData, platform: e.target.value })}
-              className="w-full rounded-lg border border-slate-300 text-xs p-2.5 focus:border-indigo-500 focus:outline-none"
+              className="w-full rounded-lg border border-slate-300 text-xs p-2.5 focus:border-indigo-500 focus:outline-none bg-white"
             >
               <option value="LinkedIn & Search Ads">LinkedIn & Search Ads</option>
-              <option value="Cold Email Sequence">Cold Email Sequence</option>
-              <option value="Social & Community">Social & Community</option>
+              <option value="LinkedIn Sponsored Content">LinkedIn Sponsored Content</option>
               <option value="Google Search PPC">Google Search PPC</option>
+              <option value="Cold Email Sequence">Cold Email Sequence</option>
+              <option value="Multi-Channel">Multi-Channel</option>
             </select>
           </div>
 
@@ -363,7 +468,9 @@ export const MarketingPage: React.FC = () => {
             <Button variant="outline" type="button" onClick={() => setCreateModalOpen(false)}>
               Cancel
             </Button>
-            <Button type="submit">Launch Campaign</Button>
+            <Button type="submit" loading={createLoading}>
+              Create Campaign
+            </Button>
           </div>
         </form>
       </Modal>
