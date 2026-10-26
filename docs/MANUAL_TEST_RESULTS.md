@@ -174,11 +174,11 @@
 - **Preconditions:** On /finance
 - **Steps Executed:** Enter income and expenses, verify total revenue, net profit, MRR, 30/60/90-day linear forecast
 - **Expected Result:** Feature executes cleanly without unhandled exceptions; UI displays expected structured response; database reflects new records.
-- **Actual Result:** `[Leave blank until tested]`
-- **Status:** `NOT TESTED`
-- **Screenshot / Evidence Reference:** `[e.g., docs/evidence/test-15.png]`
-- **Error Message (if any):** `[None]`
-- **Notes & Observations:** `[Record any UX observations, timing, or discrepancies]`
+- **Actual Result:** 9 financial records entered (4 revenue = $74,500; 5 expenses = $31,500). Deterministic calculations verified: Total Revenue $74,500, Total Expenses $31,500, Net Profit +$43,000, 30/60/90-Day linear forecast chart dynamically rendered.
+- **Status:** PASSED
+- **Screenshot / Evidence Reference:** Verified in live session
+- **Error Message (if any):** None
+- **Notes & Observations:** Zero AI math hallucination; 100% deterministic arithmetic in financial analytics engine confirmed. Modal input reset verified.
 
 ---
 ### [TEST-16] Business Health Score & Risk Detection Engine
