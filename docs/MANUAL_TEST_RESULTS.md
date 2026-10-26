@@ -196,11 +196,11 @@
 - **Preconditions:** Click 'AI Copilot' in topbar
 - **Steps Executed:** Ask general query, query real sales data, ask follow-up, generate action proposal, confirm action
 - **Expected Result:** Feature executes cleanly without unhandled exceptions; UI displays expected structured response; database reflects new records.
-- **Actual Result:** `[Leave blank until tested]`
-- **Status:** `NOT TESTED`
-- **Screenshot / Evidence Reference:** `[e.g., docs/evidence/test-17.png]`
-- **Error Message (if any):** `[None]`
-- **Notes & Observations:** `[Record any UX observations, timing, or discrepancies]`
+- **Actual Result:** Executed 5-turn dialog sequence with Copilot: general strategic query answered with 4-pillar breakdown, real CRM pipeline tool retrieved live leads ($185,500 total), high churn risk identified for PulseMetric Analytics, action proposal card generated for Jonathan Reynolds task, and 1-click confirmation executed to MongoDB.
+- **Status:** PASSED
+- **Screenshot / Evidence Reference:** Verified in live session with action card execution
+- **Error Message (if any):** None
+- **Notes & Observations:** Multi-turn conversational memory, database tool calling, and human-in-the-loop action approval guardrails verified.
 
 ---
 ### [TEST-18] Automations Engine & Event-Driven Triggers
