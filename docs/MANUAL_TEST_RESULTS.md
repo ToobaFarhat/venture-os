@@ -229,11 +229,11 @@
 - **Preconditions:** Logged out on /login
 - **Steps Executed:** Click 'Forgot password', enter email, check inbox/log for reset link, set new password
 - **Expected Result:** Feature executes cleanly without unhandled exceptions; UI displays expected structured response; database reflects new records.
-- **Actual Result:** `[Leave blank until tested]`
-- **Status:** `NOT TESTED`
-- **Screenshot / Evidence Reference:** `[e.g., docs/evidence/test-20.png]`
-- **Error Message (if any):** `[None]`
-- **Notes & Observations:** `[Record any UX observations, timing, or discrepancies]`
+- **Actual Result:** Navigated to /forgot-password, submitted registered work email. System generated cryptographic reset token, triggered email service, and rendered confirmation screen preventing email enumeration. Tested /reset-password UI and clean re-login.
+- **Status:** PASSED
+- **Screenshot / Evidence Reference:** Verified in live session
+- **Error Message (if any):** None
+- **Notes & Observations:** Self-service password recovery, token expiry validation, and return-to-login routing verified.
 
 ---
 ### [TEST-21] Multi-Tenant Workspace Isolation Security
