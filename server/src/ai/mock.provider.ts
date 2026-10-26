@@ -235,22 +235,271 @@ export class MockAIProvider implements IAIProvider {
       content = JSON.stringify(parsedJson, null, 2);
     } else if (module === 'copilot') {
       const lower = lastUserMessage.toLowerCase();
-      if (options.tools && options.tools.length > 0 && (lower.includes('pipeline') || lower.includes('sales') || lower.includes('lead'))) {
-        toolCalls = [{
-          id: 'call_mock_pipeline_' + Date.now(),
-          name: 'get_pipeline_summary',
-          arguments: {},
-        }];
-        content = '';
-      } else if (options.tools && options.tools.length > 0 && (lower.includes('revenue') || lower.includes('mrr') || lower.includes('financial'))) {
-        toolCalls = [{
-          id: 'call_mock_revenue_' + Date.now(),
-          name: 'get_revenue_data',
-          arguments: {},
-        }];
-        content = '';
-      } else {
-        content = `I have analyzed your operational workspace data. Your CRM pipelines, sprint velocity, and deterministic runway calculations are currently tracking on schedule.`;
+
+      // ── 1. Check if this is Round 2: synthesizing live tool results ─────────
+      if (lastUserMessage.includes('Here is the verified live data returned by "')) {
+        const toolMatch = lastUserMessage.match(/Here is the verified live data returned by "([^"]+)"/);
+        const toolName = toolMatch ? toolMatch[1] : '';
+
+        let toolData: any = {};
+        const jsonMatch = lastUserMessage.match(/```json\s*([\s\S]*?)\s*```/);
+        if (jsonMatch) {
+          try {
+            toolData = JSON.parse(jsonMatch[1]);
+          } catch {}
+        }
+
+        if (toolName === 'getSalesPipeline') {
+          if (toolData.dataAvailable === false) {
+            content = `### Sales Pipeline Overview\n\nThere are currently no active leads in this workspace. To populate your pipeline, head to **CRM & Leads** (\`/crm\`) and add new leads.`;
+          } else {
+            const stages = toolData.stages || {};
+            const activeStages = Object.entries(stages)
+              .filter(([_, info]: any) => info.count > 0)
+              .map(([stg, info]: any) => `- **${stg}:** ${info.count} deal${info.count !== 1 ? 's' : ''} ($${(info.totalDealValue || 0).toLocaleString()})`);
+
+            content =
+              `### 📊 Live CRM Sales Pipeline Summary\n\n` +
+              `Based on verified live database records in your active workspace:\n\n` +
+              `- **Total Pipeline Leads:** **${toolData.totalLeads ?? 0} leads**\n` +
+              `- **Total Pipeline Deal Value:** **$${(toolData.totalPipelineValue ?? 0).toLocaleString()}**\n` +
+              (toolData.winRate !== null ? `- **Conversion / Win Rate:** **${toolData.winRate}%**\n` : '') +
+              (toolData.weightedPipelineValue ? `- **Weighted Expected Value:** **$${toolData.weightedPipelineValue.toLocaleString()}**\n\n` : '\n') +
+              `**Current Stage Breakdown:**\n` +
+              (activeStages.length > 0 ? activeStages.join('\n') : '- No stage records found') +
+              `\n\n*All metrics retrieved directly from your operational leads collection without estimation.*`;
+          }
+        } else if (toolName === 'getRevenueData') {
+          if (toolData.dataAvailable === false) {
+            content = `### Financial & Runway Status\n\nNo financial transactions recorded yet. Navigate to **Finance & Forecast** (\`/finance\`) to record revenue or expense entries.`;
+          } else {
+            content =
+              `### 💰 Verified Financial & Runway Status\n\n` +
+              `- **Total Revenue:** **$${(toolData.totalRevenue ?? 0).toLocaleString()}**\n` +
+              `- **Total Operating Expenses:** **$${(toolData.totalExpenses ?? 0).toLocaleString()}**\n` +
+              `- **Net Profit / Cash Flow:** **${toolData.netProfit >= 0 ? '+' : ''}$${(toolData.netProfit ?? 0).toLocaleString()}**\n` +
+              `- **Monthly Recurring Revenue (MRR):** **$${(toolData.mrr ?? 0).toLocaleString()}**\n` +
+              `- **Annual Run Rate (ARR):** **$${(toolData.arr ?? 0).toLocaleString()}**\n` +
+              `- **Cash Runway:** **${toolData.burnRate === 0 ? 'Self-sustaining & profitable (>24 months)' : `${toolData.estimatedRunwayMonths} months`}**\n\n` +
+              `*Calculated using 100% deterministic accounting rules from your financial ledger.*`;
+          }
+        } else if (toolName === 'getCustomers') {
+          const customers = toolData.customers || [];
+          const highRisk = customers.filter(
+            (c: any) => c.churnRisk === 'high' || c.churnRisk === 'critical' || (c.healthScore && c.healthScore < 60)
+          );
+
+          content =
+            `### ⚠️ Customer Health & Churn Risk Assessment\n\n` +
+            `Based on active accounts in your customer ledger:\n\n` +
+            (highRisk.length > 0
+              ? `**Accounts Requiring Immediate Attention:**\n` +
+                highRisk
+                  .map(
+                    (c: any) =>
+                      `- **${c.name}** (${c.company}): Health Score **${c.healthScore ?? 'N/A'}/100** | Churn Risk: **${(c.churnRisk || 'high').toUpperCase()}** | MRR: $${(c.mrr || 0).toLocaleString()}`
+                  )
+                  .join('\n') +
+                `\n\n*Primary Factor:* Low health score correlates with recent negative support feedback. Executive check-in and technical resolution recommended.`
+              : `All active customer accounts are tracking with healthy metrics (average score > 80/100).`) +
+            `\n\n- **Total Customer Accounts:** ${toolData.count ?? customers.length}`;
+        } else if (toolName === 'getCustomerFeedback') {
+          const urgent = toolData.highUrgencyIssues || [];
+          content =
+            `### 💬 Customer Feedback & Support Diagnostics\n\n` +
+            `- **Sampled Feedback Entries:** ${toolData.totalSampled ?? 0}\n` +
+            `- **Customer Satisfaction Rate:** **${toolData.satisfactionRate ?? 0}%**\n` +
+            `- **Sentiment Breakdown:** ${toolData.sentimentCounts?.positive ?? 0} Positive, ${toolData.sentimentCounts?.neutral ?? 0} Neutral, ${toolData.sentimentCounts?.negative ?? 0} Negative\n\n` +
+            (urgent.length > 0
+              ? `**Specific Issues Driving Negative Sentiment:**\n` +
+                urgent
+                  .map((u: any) => `- **${u.customerName}** (*${u.topic}*): "${u.content}"`)
+                  .join('\n') +
+                `\n\n*Resolution Required:* Technical patch and direct communication to mitigate churn risk.`
+              : `No critical support escalations or unresolved complaints logged.`);
+        } else if (toolName === 'getProjectStatus') {
+          content =
+            `### 📁 Project Management & Milestone Status\n\n` +
+            `- **Active Projects:** ${toolData.totalProjects ?? 0}\n` +
+            `- **Total Tasks:** ${toolData.totalTasks ?? 0} (${toolData.completedTasks ?? 0} Completed — **${toolData.completionRate ?? 0}%**)\n` +
+            `- **Overdue Tasks:** **${toolData.overdueTasksCount ?? 0}**\n` +
+            (toolData.overdueTasksList?.length > 0
+              ? `\n**Overdue Delivery Items:**\n` +
+                toolData.overdueTasksList.map((t: any) => `- ${t.title} (Priority: ${t.priority})`).join('\n')
+              : '\nAll sprint deliverables are tracking on schedule.');
+        } else if (toolName === 'getLeads') {
+          const leads = toolData.leads || [];
+          content =
+            `### 🎯 Qualified Leads Overview\n\n` +
+            `Top pipeline leads retrieved from database:\n\n` +
+            leads
+              .map(
+                (l: any) =>
+                  `- **${l.name}** (${l.company}) — Value: **$${(l.dealValue || 0).toLocaleString()}** | Stage: **${l.status}** | AI Score: **${l.aiScore ?? 'N/A'}/100**`
+              )
+              .join('\n');
+        } else {
+          content =
+            `### Operational Data Retrieved\n\n` +
+            `Verified live records from **${toolName}**:\n\n` +
+            `\`\`\`json\n${JSON.stringify(toolData, null, 2).slice(0, 500)}\n\`\`\``;
+        }
+      }
+      // ── 2. Check if this is Round 1: user prompt requiring tool call or direct answer ──
+      else {
+        // Check for Action Proposal (task creation)
+        if (
+          lower.includes('action proposal') ||
+          lower.includes('create a task') ||
+          lower.includes('create task') ||
+          lower.includes('follow-up task') ||
+          lower.includes('prepare an action') ||
+          lower.includes('add task')
+        ) {
+          const isJonathan = lower.includes('jonathan') || lower.includes('reynolds') || lower.includes('apex');
+          toolCalls = [
+            {
+              id: 'call_createTask_' + Date.now(),
+              name: 'createTask',
+              args: {
+                title: isJonathan
+                  ? 'High-Priority Follow-up: Jonathan Reynolds (Apex Logistics)'
+                  : 'High-Priority Follow-up Task',
+                description: isJonathan
+                  ? 'Deliver SOC 2 Type II compliance report and finalize procurement contract for $55,000 enterprise deal.'
+                  : 'Execute high-priority operational deliverable.',
+                priority: 'urgent',
+                dueDate: '2026-10-30',
+              },
+            },
+          ];
+          content = '';
+        }
+        // Check for Sales / Pipeline / Deals / Active Leads
+        else if (
+          lower.includes('pipeline') ||
+          lower.includes('how many active leads') ||
+          lower.includes('deal value') ||
+          (lower.includes('sales') && !lower.includes('advantage')) ||
+          (lower.includes('lead') && !lower.includes('advantage') && !lower.includes('leadership'))
+        ) {
+          toolCalls = [
+            {
+              id: 'call_pipeline_' + Date.now(),
+              name: 'getSalesPipeline',
+              args: {},
+            },
+          ];
+          content = '';
+        }
+        // Check for Revenue / Finance / Profit / MRR / Runway
+        else if (
+          lower.includes('revenue') ||
+          lower.includes('mrr') ||
+          lower.includes('arr') ||
+          lower.includes('expense') ||
+          lower.includes('net profit') ||
+          lower.includes('runway') ||
+          lower.includes('burn rate')
+        ) {
+          toolCalls = [
+            {
+              id: 'call_revenue_' + Date.now(),
+              name: 'getRevenueData',
+              args: {},
+            },
+          ];
+          content = '';
+        }
+        // Check for Churn risk / Customer health
+        else if (
+          lower.includes('churn') ||
+          lower.includes('lowest health') ||
+          lower.includes('at-risk') ||
+          (lower.includes('health') && (lower.includes('customer') || lower.includes('score') || lower.includes('account')))
+        ) {
+          toolCalls = [
+            {
+              id: 'call_customers_' + Date.now(),
+              name: 'getCustomers',
+              args: {},
+            },
+          ];
+          content = '';
+        }
+        // Check for Feedback / Complaints / Support issues
+        else if (
+          lower.includes('feedback') ||
+          lower.includes('support issue') ||
+          lower.includes('complaint') ||
+          lower.includes('ticket') ||
+          lower.includes('what specific customer') ||
+          lower.includes('contributed to that low score')
+        ) {
+          toolCalls = [
+            {
+              id: 'call_feedback_' + Date.now(),
+              name: 'getCustomerFeedback',
+              args: {},
+            },
+          ];
+          content = '';
+        }
+        // Check for Projects / Sprints / Tasks
+        else if (
+          lower.includes('project') ||
+          lower.includes('sprint') ||
+          lower.includes('overdue task') ||
+          lower.includes('milestone')
+        ) {
+          toolCalls = [
+            {
+              id: 'call_projects_' + Date.now(),
+              name: 'getProjectStatus',
+              args: {},
+            },
+          ];
+          content = '';
+        }
+        // General Strategic Inquiry: Unified OS vs Disconnected SaaS point tools
+        else if (
+          lower.includes('advantage') ||
+          lower.includes('unified') ||
+          lower.includes('point tool') ||
+          lower.includes('disconnected') ||
+          lower.includes('operating system')
+        ) {
+          content =
+            `### Key Advantages of a Unified Business Operating System\n\n` +
+            `Operating a business on a single unified platform rather than disconnected SaaS point tools provides four major competitive advantages:\n\n` +
+            `1. **Elimination of Data Silos & Friction:**\n` +
+            `   Standalone tools (separate CRM, disjointed project boards, isolated accounting, and disconnected support tickets) cause conflicting customer records. A unified operating system provides a **single source of truth** across your entire operations.\n\n` +
+            `2. **Cross-Module Intelligence & Automated Risk Corroboration:**\n` +
+            `   When an enterprise account logs a critical support complaint, traditional point tools leave it isolated in a support queue. In VentureOS, customer support sentiment immediately alerts the sales team before renewal and recalculates churn probability.\n\n` +
+            `3. **Context-Aware AI Copilot Grounded in Live Data:**\n` +
+            `   Generic AI chatbots lack internal business context. VentureOS Copilot has secure, authorized access to your live pipeline, financials, tasks, and documents, proposing verifiable actions through Human-in-the-Loop guardrails.\n\n` +
+            `4. **Drastic Cost & Vendor Consolidation:**\n` +
+            `   Replacing 5–7 separate SaaS subscriptions eliminates redundant per-seat licensing, complex Zapier integrations, and security overhead under a single unified platform.`;
+        }
+        // Sales Strategy Recommendation: Apex Logistics / Jonathan Reynolds
+        else if (
+          lower.includes('jonathan') ||
+          lower.includes('apex') ||
+          (lower.includes('action plan') && lower.includes('sales'))
+        ) {
+          content =
+            `### Recommended Action Plan: Closing Apex Logistics ($55,000 Opportunity)\n\n` +
+            `To successfully close **Jonathan Reynolds** at **Apex Logistics International**:\n\n` +
+            `1. **Deliver Compliance Verification:** Send our SOC 2 Type II compliance certificate and 99.95% uptime SLA documentation by Friday morning.\n` +
+            `2. **Tailored Workflow Demo:** Schedule a dedicated demonstration highlighting unified customer intelligence and multi-tenant SLA management.\n` +
+            `3. **Executive Sponsor Alignment:** Arrange an executive sync with Marcus Vance before Friday close of business to finalize contract execution.`;
+        }
+        // General Fallback
+        else {
+          content =
+            `I have analyzed your workspace operational context. Your CRM pipelines, active customers, sprint deliverables, and financial records are active and synchronized.\n\n` +
+            `Feel free to ask about your live pipeline totals, revenue metrics, customer churn risks, or request an action proposal card.`;
+        }
       }
     } else {
       content = `AI analysis complete for module ${module}. Operational context gathered and evaluated.`;
