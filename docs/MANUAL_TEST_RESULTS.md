@@ -207,11 +207,11 @@
 - **Preconditions:** On /automations
 - **Steps Executed:** Inspect active triggers (lead scoring, negative sentiment, churn alert), toggle automation rule
 - **Expected Result:** Feature executes cleanly without unhandled exceptions; UI displays expected structured response; database reflects new records.
-- **Actual Result:** `[Leave blank until tested]`
-- **Status:** `NOT TESTED`
-- **Screenshot / Evidence Reference:** `[e.g., docs/evidence/test-18.png]`
-- **Error Message (if any):** `[None]`
-- **Notes & Observations:** `[Record any UX observations, timing, or discrepancies]`
+- **Actual Result:** Navigated to /automations, inspected 4 cross-module event triggers (Won leads project onboarding, churn alert dispatcher, negative feedback remediation, and runway burn guardrail). Toggled rule status between Active and Paused successfully.
+- **Status:** PASSED
+- **Screenshot / Evidence Reference:** Verified in live session
+- **Error Message (if any):** None
+- **Notes & Observations:** Autonomous event triggers and interactive toggles function cleanly without errors.
 
 ---
 ### [TEST-19] Admin Governance, Audit Logs & AI Usage
