@@ -218,11 +218,11 @@
 - **Preconditions:** Logged in as Owner/Admin on /admin
 - **Steps Executed:** Inspect user accounts, recent audit logs, AI token usage metrics and provider latency
 - **Expected Result:** Feature executes cleanly without unhandled exceptions; UI displays expected structured response; database reflects new records.
-- **Actual Result:** `[Leave blank until tested]`
-- **Status:** `NOT TESTED`
-- **Screenshot / Evidence Reference:** `[e.g., docs/evidence/test-19.png]`
-- **Error Message (if any):** `[None]`
-- **Notes & Observations:** `[Record any UX observations, timing, or discrepancies]`
+- **Actual Result:** Navigated to /admin. Verified AI usage telemetry cards (total invocations, token consumption, sub-penny cost estimation, active tenant scope) and model breakdown table. Inspected immutable audit trail with recorded events (registration, lead creation, task creation, etc.).
+- **Status:** PASSED
+- **Screenshot / Evidence Reference:** Verified in live session
+- **Error Message (if any):** None
+- **Notes & Observations:** Immutable logging, token metering, and role-based administrative visibility functioning as designed.
 
 ---
 ### [TEST-20] Email Delivery & Password Recovery Flow
